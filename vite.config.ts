@@ -15,7 +15,6 @@ export default defineConfig({
         target: 'https://api.starknet.extended.exchange/api',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/starknet/, ''),
-        secure: false,
       },
     },
   },
