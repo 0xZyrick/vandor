@@ -7,7 +7,6 @@ import Header from './components/Header';
 function App() {
   return (
     <div className="min-h-screen bg-[#0a0a0f] text-white selection:bg-green-500/30">
-      {/* Desktop Top Nav */}
       <Header />
 
       {/* Main Content */}
@@ -19,7 +18,6 @@ function App() {
         </Routes>
       </main>
 
-      {/* Mobile Bottom Nav */}
       <BottomNav />
     </div>
   );

@@ -24,7 +24,6 @@ export default function OrderTicket({ symbol, currentPrice }: OrderTicketProps) 
   const [amount, setAmount] = useState('');
   const [leverage, setLeverage] = useState(10);
   const [limitPrice, setLimitPrice] = useState('');
-  
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const [orderResult, setOrderResult] = useState<{ success: boolean; message: string } | null>(null);
 
@@ -136,14 +135,14 @@ export default function OrderTicket({ symbol, currentPrice }: OrderTicketProps) 
   };
 
   return (
-    <div className="w-full h-full flex flex-col bg-gray-900/25 rounded-2xl border border-gray-900/25 shadow-2xl overflow-hidden">
+    <div className="w-full h-full flex flex-col bg-gray-900/25 rounded-2xl border border-gray-900/25 shadow-2xl overflow-hidden m-4">
       
       {/* Fixed Header */}
-      <div className="shrink-0 border-b border-gray-900">
+      <div className="shrink-0 border-b border-gray-900 flex justify-between">
         <div className="flex gap-4 px-4 pt-4 pb-2">
           <button 
             onClick={() => setOrderType('market')}
-            className={`text-sm font-bold pb-2 px-4 transition-all ${
+            className={`text-sm font-bold pb-2 px-6 transition-all ${
               orderType === 'market' 
                 ? 'border-b-2 border-blue-500 text-white' 
                 : 'text-gray-600 hover:text-gray-400'
@@ -153,7 +152,7 @@ export default function OrderTicket({ symbol, currentPrice }: OrderTicketProps) 
           </button>
           <button 
             onClick={() => setOrderType('limit')}
-            className={`text-sm font-bold pb-2 px-4 transition-all ${
+            className={`text-sm font-bold pb-2 px-6 transition-all ${
               orderType === 'limit' 
                 ? 'border-b-2 border-blue-500 text-white' 
                 : 'text-gray-600 hover:text-gray-400'
@@ -162,36 +161,37 @@ export default function OrderTicket({ symbol, currentPrice }: OrderTicketProps) 
             Limit
           </button>
         </div>
+
+        <Settings2 className="w-5 h-5 text-gray-500 cursor-pointer hover:text-white transition shrink-0" />
       </div>
 
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto p-4">
-        <div className="space-y-4">
+        <div className="space-y-2">
         
-        <div className="flex justify-between items-center gap-2">
+        <div className="flex justify-between items-center">
           <div className="flex gap-2 flex-1">
             <button 
               onClick={() => setActiveTab('long')} 
-              className={`flex-1 px-4 py-3 rounded-lg font-bold transition-all ${
+              className={`flex-1 px-4 py-2 rounded-lg font-bold transition-all ${
                 activeTab === 'long' 
-                  ? 'bg-green-500/25 text-green-400 border border-green-500' 
-                  : 'text-green-300 hover:text-white border border-gray-800'
+                  ? 'bg-green-500/25 text-green-400' 
+                  : 'text-green-300 hover:text-white'
               }`}
             >
               Long
             </button>
             <button 
               onClick={() => setActiveTab('short')} 
-              className={`flex-1 px-4 py-3 rounded-lg font-bold transition-all ${
+              className={`flex-1 px-4 py-2 rounded-lg font-bold transition-all ${
                 activeTab === 'short' 
-                  ? 'bg-red-500/25 text-red-400 border border-red-500' 
-                  : 'text-red-500 hover:text-white border border-gray-800'
+                  ? 'bg-red-500/25 text-red-400' 
+                  : 'text-red-500 hover:text-white'
               }`}
             >
               Short
             </button>
           </div>
-          <Settings2 className="w-4 h-4 text-gray-500 cursor-pointer hover:text-white transition flex-shrink-0" />
         </div>
 
         <div className="flex justify-between items-center">
@@ -227,16 +227,16 @@ export default function OrderTicket({ symbol, currentPrice }: OrderTicketProps) 
         )}
 
         <div className="flex flex-col gap-2">
-          <h3 className="text-gray-500 text-sm">Enter Amount</h3>
+          {/* <h3 className="text-gray-500 text-sm">Enter Amount</h3> */}
           <div className="flex w-full justify-between gap-2 px-3 py-4 rounded-lg border border-gray-800">
             <input 
               type="number" 
-              placeholder="0.00"
+              placeholder="Enter Amount"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               className="bg-transparent flex-1 outline-none font-medium" 
             />
-            <span className="text-md font-semibold text-gray-400 bg-gray-900 px-4 rounded-lg">USDC</span>
+            <span className="text-md font-semibold text-gray-400 bg-gray-900 px-4 py-1 rounded-lg">USDC</span>
           </div>
           
           <div className="grid grid-cols-4 gap-2 mt-2">
@@ -308,9 +308,9 @@ export default function OrderTicket({ symbol, currentPrice }: OrderTicketProps) 
               : 'bg-red-500/10 border border-red-500/30'
           }`}>
             {orderResult.success ? (
-              <CheckCircle2 className="w-4 h-4 text-green-400 flex-shrink-0" />
+              <CheckCircle2 className="w-4 h-4 text-green-400 shrink-0" />
             ) : (
-              <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
+              <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
             )}
             <span className={`text-sm ${
               orderResult.success ? 'text-green-400' : 'text-red-400'

@@ -1,6 +1,6 @@
 // src/contexts/ExtendedExchangeContext.tsx
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { useAccount } from '@starknet-react/core';
 import { initializeExtendedService, getExtendedService } from '../services/ExtendedExchangeService';
 
@@ -8,9 +8,7 @@ import { initializeExtendedService, getExtendedService } from '../services/Exten
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 
-// ============================================================================
 // TYPES
-// ============================================================================
 
 interface Position {
   id: string;
@@ -69,15 +67,11 @@ interface ExtendedExchangeContextType {
   refreshAll: () => Promise<void>;
 }
 
-// ============================================================================
 // CONTEXT
-// ============================================================================
 
 const ExtendedExchangeContext = createContext<ExtendedExchangeContextType | undefined>(undefined);
 
-// ============================================================================
 // PROVIDER
-// ============================================================================
 
 export function ExtendedExchangeProvider({ children }: { children: ReactNode }) {
   const { account } = useAccount();
@@ -96,9 +90,7 @@ export function ExtendedExchangeProvider({ children }: { children: ReactNode }) 
   const [loadingOrders, setLoadingOrders] = useState(false);
   const [loadingBalance, setLoadingBalance] = useState(false);
 
-  // ============================================================================
   // INITIALIZE SERVICE
-  // ============================================================================
 
   useEffect(() => {
     try {
@@ -122,7 +114,7 @@ export function ExtendedExchangeProvider({ children }: { children: ReactNode }) 
         return;
       }
 
-      const service = initializeExtendedService({
+      initializeExtendedService({
         apiKey: apiKey || '',
         starkPrivateKey: starkKey || '',
         clientId: clientId || '',
@@ -136,19 +128,16 @@ export function ExtendedExchangeProvider({ children }: { children: ReactNode }) 
     }
   }, []);
 
-  // ============================================================================
   // CONNECT WALLET
-  // ============================================================================
 
   useEffect(() => {
     if (account && isInitialized) {
       try {
         const service = getExtendedService();
-        service.connectWallet(account);
+        service.connectWallet(account as any);
         setIsConnected(true);
         console.log('✅ Wallet connected to Extended Exchange');
         
-        // Load initial data
         refreshAll();
       } catch (error) {
         console.error('❌ Failed to connect wallet:', error);
@@ -159,11 +148,10 @@ export function ExtendedExchangeProvider({ children }: { children: ReactNode }) 
       setOrders([]);
       setBalance(null);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [account, isInitialized]);
 
-  // ============================================================================
   // REFRESH FUNCTIONS
-  // ============================================================================
 
   const refreshPositions = async () => {
     if (!isConnected || !isInitialized) return;
@@ -222,9 +210,7 @@ export function ExtendedExchangeProvider({ children }: { children: ReactNode }) 
     ]);
   };
 
-  // ============================================================================
   // AUTO-REFRESH (every 10 seconds)
-  // ============================================================================
 
   useEffect(() => {
     if (!isConnected) return;
@@ -234,11 +220,10 @@ export function ExtendedExchangeProvider({ children }: { children: ReactNode }) 
     }, 10000);
     
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isConnected]);
 
-  // ============================================================================
   // TRADING ACTIONS
-  // ============================================================================
 
   const placeOrder = async (params: any) => {
     if (!isInitialized) throw new Error('Service not initialized');
@@ -280,9 +265,7 @@ export function ExtendedExchangeProvider({ children }: { children: ReactNode }) 
     return result;
   };
 
-  // ============================================================================
   // CONTEXT VALUE
-  // ============================================================================
 
   const value: ExtendedExchangeContextType = {
     isConnected,
@@ -309,10 +292,8 @@ export function ExtendedExchangeProvider({ children }: { children: ReactNode }) 
   );
 }
 
-// ============================================================================
 // HOOK
-// ============================================================================
-
+// eslint-disable-next-line react-refresh/only-export-components
 export function useExtendedExchange() {
   const context = useContext(ExtendedExchangeContext);
   
@@ -322,5 +303,3 @@ export function useExtendedExchange() {
   
   return context;
 }
-
-export default ExtendedExchangeContext;

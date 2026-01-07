@@ -1,28 +1,11 @@
-// ============================================================================
-// EXTENDED EXCHANGE API SERVICE
-// Uses REST API with Stark Key Signatures (No SDK needed)
-// ============================================================================
 
-/**
- * SETUP INSTRUCTIONS:
- * 1. No npm packages needed! Uses native fetch
- * 2. Get your API credentials from extended.exchange:
- *    - Go to Account > API Management
- *    - Get: API Key, Stark Private Key, Client ID, Vault Number
- * 3. Add to .env:
- *    VITE_EXTENDED_API_KEY=your_api_key
- *    VITE_EXTENDED_STARK_KEY=your_stark_private_key
- *    VITE_EXTENDED_CLIENT_ID=your_client_id
- *    VITE_EXTENDED_VAULT_NUMBER=your_vault
- */
 
 import { Account } from 'starknet';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-// ============================================================================
+
 // TYPES
-// ============================================================================
 
 interface ExtendedConfig {
   apiKey: string;
@@ -44,9 +27,8 @@ interface OrderParams {
   timeInForce?: 'GTC' | 'IOC' | 'FOK';
 }
 
-// ============================================================================
+
 // EXTENDED EXCHANGE SERVICE
-// ============================================================================
 
 class ExtendedExchangeService {
   private config: ExtendedConfig;
@@ -58,10 +40,8 @@ class ExtendedExchangeService {
     this.baseUrl = config.baseUrl || 'https://api.starknet.extended.exchange';
   }
 
-  // ============================================================================
-  // AUTHENTICATION
-  // ============================================================================
-
+    // AUTHENTICATION
+  
   connectWallet(account: Account) {
     this.account = account;
     console.log("✅ Wallet connected:", account.address);
@@ -76,10 +56,8 @@ class ExtendedExchangeService {
     return this.account !== null;
   }
 
-  // ============================================================================
-  // API REQUEST HELPER
-  // ============================================================================
-
+    // API REQUEST HELPER
+  
   private async makeRequest<T>(
     method: string,
     endpoint: string,
@@ -113,27 +91,18 @@ class ExtendedExchangeService {
     }
   }
 
-  // ============================================================================
-  // PUBLIC ENDPOINTS (No Auth Required)
-  // ============================================================================
+    // PUBLIC ENDPOINTS (No Auth Required)
+  
 
-  /**
-   * Get all available markets
-   */
   async getMarkets() {
     return this.makeRequest('GET', '/api/v1/info/markets');
   }
 
-  /**
-   * Get market statistics
-   */
+
   async getMarketStats(market: string) {
     return this.makeRequest('GET', `/api/v1/info/markets/${market}/stats`);
   }
 
-  /**
-   * Get trading fees for markets
-   */
   async getFees() {
     return this.makeRequest('GET', '/api/v1/info/fees');
   }
@@ -145,73 +114,66 @@ class ExtendedExchangeService {
     return this.makeRequest('GET', `/api/v1/info/orderbook/${market}?depth=${depth}`);
   }
 
-  // ============================================================================
+
   // PRIVATE ENDPOINTS (Auth Required)
-  // ============================================================================
 
-  /**
-   * Get account balance and margin info
-   */
-  async getBalance() {
-    if (!this.isConnected()) {
-      throw new Error("Wallet not connected");
+      async getBalance() {
+        if (!this.isConnected()) {
+          throw new Error("Wallet not connected");
+        }
+
+        try {
+          const data: any = await this.makeRequest('GET', '/api/v1/private/account');
+          
+          return {
+            available: parseFloat(data.data?.availableBalance || '0'),
+            total: parseFloat(data.data?.totalBalance || '0'),
+            margin: parseFloat(data.data?.usedMargin || '0'),
+            unrealizedPnL: parseFloat(data.data?.unrealizedPnl || '0'),
+          };
+        } catch (error) {
+          console.error("❌ Failed to get balance:", error);
+          throw error;
+        }
+      }
+
+
+    //  Get all open positions
+
+    async getPositions() {
+      if (!this.isConnected()) {
+        throw new Error("Wallet not connected");
+      }
+
+      try {
+        const data: any = await this.makeRequest('GET', '/api/v1/private/positions');
+        
+        const positions = data.data?.positions || [];
+        const totalPnL = positions.reduce((sum: number, p: any) => 
+          sum + parseFloat(p.unrealizedPnl || '0'), 0
+        );
+
+        return {
+          positions: positions.map((p: any) => ({
+            id: p.positionId,
+            symbol: p.market,
+            side: parseFloat(p.size) > 0 ? 'long' : 'short',
+            size: Math.abs(parseFloat(p.size)),
+            entryPrice: parseFloat(p.entryPrice),
+            markPrice: parseFloat(p.markPrice),
+            liquidationPrice: parseFloat(p.liquidationPrice),
+            unrealizedPnl: parseFloat(p.unrealizedPnl),
+            leverage: parseFloat(p.leverage),
+          })),
+          totalPnL,
+          totalPositions: positions.length,
+        };
+      } catch (error) {
+        console.error("❌ Failed to get positions:", error);
+        throw error;
+      }
     }
 
-    try {
-      const data = await this.makeRequest('GET', '/api/v1/private/account');
-      
-      return {
-        available: parseFloat(data.data?.availableBalance || '0'),
-        total: parseFloat(data.data?.totalBalance || '0'),
-        margin: parseFloat(data.data?.usedMargin || '0'),
-        unrealizedPnL: parseFloat(data.data?.unrealizedPnl || '0'),
-      };
-    } catch (error) {
-      console.error("❌ Failed to get balance:", error);
-      throw error;
-    }
-  }
-
-  /**
-   * Get all open positions
-   */
-  async getPositions() {
-    if (!this.isConnected()) {
-      throw new Error("Wallet not connected");
-    }
-
-    try {
-      const data = await this.makeRequest('GET', '/api/v1/private/positions');
-      
-      const positions = data.data?.positions || [];
-      const totalPnL = positions.reduce((sum: number, p: any) => 
-        sum + parseFloat(p.unrealizedPnl || '0'), 0
-      );
-
-      return {
-        positions: positions.map((p: any) => ({
-          id: p.positionId,
-          symbol: p.market,
-          side: parseFloat(p.size) > 0 ? 'long' : 'short',
-          size: Math.abs(parseFloat(p.size)),
-          entryPrice: parseFloat(p.entryPrice),
-          markPrice: parseFloat(p.markPrice),
-          liquidationPrice: parseFloat(p.liquidationPrice),
-          unrealizedPnl: parseFloat(p.unrealizedPnl),
-          leverage: parseFloat(p.leverage),
-        })),
-        totalPnL,
-        totalPositions: positions.length,
-      };
-    } catch (error) {
-      console.error("❌ Failed to get positions:", error);
-      throw error;
-    }
-  }
-
-  /**
-   * Get open orders
-   */
   async getOpenOrders(market?: string) {
     if (!this.isConnected()) {
       throw new Error("Wallet not connected");
@@ -222,7 +184,7 @@ class ExtendedExchangeService {
         ? `/api/v1/private/orders?market=${market}` 
         : '/api/v1/private/orders';
       
-      const data = await this.makeRequest('GET', endpoint);
+      const data: any = await this.makeRequest('GET', endpoint);
       return data.data?.orders || [];
     } catch (error) {
       console.error("❌ Failed to get orders:", error);
@@ -230,9 +192,6 @@ class ExtendedExchangeService {
     }
   }
 
-  /**
-   * Get order history
-   */
   async getOrderHistory(params?: {
     market?: string;
     startTime?: number;
@@ -249,8 +208,8 @@ class ExtendedExchangeService {
       if (params?.limit) queryParams.append('limit', params.limit.toString());
       
       const endpoint = `/api/v1/private/orders/history?${queryParams}`;
-      const data = await this.makeRequest('GET', endpoint);
-      
+      const data: any = await this.makeRequest('GET', endpoint);
+
       return data.data?.orders || [];
     } catch (error) {
       console.error("❌ Failed to get order history:", error);
@@ -258,17 +217,9 @@ class ExtendedExchangeService {
     }
   }
 
-  // ============================================================================
-  // ORDER PLACEMENT (Simplified - Production needs Stark signature)
-  // ============================================================================
-
-  /**
-   * Place an order
-   * 
-   * NOTE: This is a simplified version for demo purposes.
-   * Production requires Stark key signature - see Extended's Python SDK for reference:
-   * https://github.com/x10xchange/python_sdk
-   */
+  
+  // ORDER PLACEMENT 
+  
   async placeOrder(params: {
     symbol: string;
     side: 'long' | 'short';
@@ -292,12 +243,11 @@ class ExtendedExchangeService {
       let orderPrice = params.price?.toString() || '0';
       
       if (params.type === 'market' && !params.price) {
-        const marketData = await this.getMarketStats(params.symbol);
+        const marketData: any = await this.getMarketStats(params.symbol);
         orderPrice = marketData.data?.lastPrice || '0';
       }
 
-      // Get trading fees
-      const feesData = await this.getFees();
+      const feesData: any = await this.getFees();
       const marketFees = feesData.data?.find((f: any) => f.market === params.symbol);
       const fee = params.type === 'limit' ? marketFees?.makerFeeRate : marketFees?.takerFeeRate;
 
@@ -321,17 +271,6 @@ class ExtendedExchangeService {
         fee: fee || '0.00025',
       };
 
-      /**
-       * IMPORTANT: Production implementation requires:
-       * 1. Sign order with Stark private key
-       * 2. Include signature in request
-       * 
-       * See Extended's Python SDK for reference implementation:
-       * https://github.com/x10xchange/python_sdk/blob/main/x10/perpetual/orders.py
-       * 
-       * For now, this will return a simulated response
-       */
-
       console.log("⚠️ DEMO MODE: Stark signature required for actual order placement");
       console.log("📋 Order payload:", builderPayload);
 
@@ -344,10 +283,6 @@ class ExtendedExchangeService {
         ...builderPayload
       };
 
-      // Production code would look like:
-      // const signedOrder = await this.signOrderWithStarkKey(builderPayload);
-      // return await this.makeRequest('POST', '/api/v1/private/orders', signedOrder);
-
     } catch (error: any) {
       console.error("❌ Order failed:", error);
       return {
@@ -357,9 +292,6 @@ class ExtendedExchangeService {
     }
   }
 
-  /**
-   * Cancel an order
-   */
   async cancelOrder(orderId: string) {
     if (!this.isConnected()) {
       return { success: false, error: "Wallet not connected" };
@@ -368,11 +300,11 @@ class ExtendedExchangeService {
     try {
       console.log("❌ Cancelling order:", orderId);
       
-      const data = await this.makeRequest('DELETE', `/api/v1/private/orders/${orderId}`);
-      
+      const data: any = await this.makeRequest('DELETE', `/api/v1/private/orders/${orderId}`);
+
       return {
         success: true,
-        ...data
+        data: data
       };
     } catch (error: any) {
       return {
@@ -400,9 +332,7 @@ class ExtendedExchangeService {
   }
 }
 
-// ============================================================================
 // SINGLETON INSTANCE
-// ============================================================================
 
 let extendedServiceInstance: ExtendedExchangeService | null = null;
 

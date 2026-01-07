@@ -23,13 +23,12 @@ export default function PositionsDropdown() {
   const hasPositions = positions.length > 0;
 
   return (
-    <div className="lg:hidden">
-      {/* Button */}
+    <div className="xl:hidden">
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="relative p-3 rounded-xl hover:bg-gray-800 transition"
       >
-        <LayersPlus className="text-md" /> {/* Will replace with Lucide icon */}
+        <LayersPlus className="text-md" />
         {hasPositions && (
           <span className="absolute -top-1 -right-1 bg-green-500 text-black text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
             {positions.length}

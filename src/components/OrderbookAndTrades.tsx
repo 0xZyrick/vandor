@@ -3,9 +3,7 @@ import { TrendingUp, TrendingDown, X, RefreshCw } from 'lucide-react';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-// ============================================================================
 // TYPES
-// ============================================================================
 
 interface OrderbookEntry {
   price: number;
@@ -26,9 +24,7 @@ interface OrderbookAndTradesProps {
   isMobile?: boolean;
 }
 
-// ============================================================================
 // ORDERBOOK AND TRADES COMPONENT
-// ============================================================================
 
 export default function OrderbookAndTrades({ 
   symbol, 
@@ -58,13 +54,13 @@ export default function OrderbookAndTrades({
       
       // Parse orderbook data
       if (data.data) {
-        const orderbookBids = (data.data.bids || []).map((bid: any, index: number) => ({
+        const orderbookBids = (data.data.bids || []).map((bid: any) => ({
           price: parseFloat(bid.price || bid[0]),
           size: parseFloat(bid.size || bid[1]),
           total: parseFloat(bid.total || bid[1]), // Cumulative
         })).slice(0, 15);
         
-        const orderbookAsks = (data.data.asks || []).map((ask: any, index: number) => ({
+        const orderbookAsks = (data.data.asks || []).map((ask: any) => ({
           price: parseFloat(ask.price || ask[0]),
           size: parseFloat(ask.size || ask[1]),
           total: parseFloat(ask.total || ask[1]),
@@ -152,18 +148,18 @@ export default function OrderbookAndTrades({
     setTrades(mockTrades);
   };
 
-  useEffect(() => {
-    fetchOrderbook();
-    fetchTrades();
-    
-    // Auto-refresh every 5 seconds
-    const interval = setInterval(() => {
+    useEffect(() => {
       fetchOrderbook();
       fetchTrades();
-    }, 5000);
-    
-    return () => clearInterval(interval);
-  }, [symbol]);
+      
+      const interval = setInterval(() => {
+        fetchOrderbook();
+        fetchTrades();
+      }, 5000);
+      
+      return () => clearInterval(interval);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [symbol]);
 
   // Calculate max size for visual bars
   const maxBidSize = Math.max(...bids.map(b => b.size), 1);

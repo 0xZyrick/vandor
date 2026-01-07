@@ -13,10 +13,9 @@ export function StarknetProvider({ children }: { children: React.ReactNode }) {
   
 const { connectors } = useInjectedConnectors({
     recommended: [
-      argent(), // Supports mobile/extension
+      argent(),
       braavos(), 
     ],
-    // This allows users to login via Email/Social if they don't have an extension
     includeRecommended: "always", 
   });
 

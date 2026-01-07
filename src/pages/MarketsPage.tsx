@@ -6,10 +6,6 @@ import { TokenIcon } from '@token-icons/react';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */    
 
-// ============================================================================
-// TYPES
-// ============================================================================
-
 interface Market {
   symbol: string;
   lastPrice: number;
@@ -21,10 +17,6 @@ interface Market {
   fundingRate: number;
   apy: number;
 }
-
-// ============================================================================
-// UTILITY FUNCTIONS
-// ============================================================================
 
 const formatNum = (val: any, decimals = 2): string => {
   const num = Number(val);
@@ -50,12 +42,8 @@ const formatPercent = (val: any): string => {
   return `${sign}${num.toFixed(2)}%`;
 };
 
-// ============================================================================
 // API SERVICE
-// ============================================================================
-
 const fetchLiveMarkets = async (): Promise<Market[]> => {
-  // Use Vite proxy in development, direct URL in production
   const apiUrl = import.meta.env.DEV 
     ? '/api/v1/info/markets' 
     : 'https://api.starknet.extended.exchange/api/v1/info/markets';
@@ -85,9 +73,8 @@ const fetchLiveMarkets = async (): Promise<Market[]> => {
     }
   }
   
-  // Try to find markets array
-  let markets: any[] = [];
   
+  let markets: any[] = [];
   if (data.data?.markets && Array.isArray(data.data.markets)) {
     markets = data.data.markets;
     console.log("✅ Found markets at data.data.markets");
@@ -103,7 +90,7 @@ const fetchLiveMarkets = async (): Promise<Market[]> => {
   }
   
   console.log(`📊 Total markets found: ${markets.length}`);
-  
+
   if (markets.length === 0) {
     console.error("❌ No markets found!");
     console.log("📋 Full response structure:", JSON.stringify(data, null, 2));
@@ -112,7 +99,7 @@ const fetchLiveMarkets = async (): Promise<Market[]> => {
   
   console.log(`✅ Found ${markets.length} markets from Extended Exchange`);
   
-  // Map Extended Exchange format to our Market interface
+  
   const cryptoMarkets = markets.map((m: any) => {
     const stats = m.marketStats || {};
     const lastPrice = parseFloat(stats.lastPrice || stats.oraclePrice || '0');
@@ -121,18 +108,17 @@ const fetchLiveMarkets = async (): Promise<Market[]> => {
     const high = parseFloat(stats.dailyHigh || lastPrice.toString());
     const low = parseFloat(stats.dailyLow || lastPrice.toString());
     
-    // Extended doesn't provide funding rate in this endpoint, using placeholder
-    const fundingRate = 0.0001; // You'll need to fetch this from a different endpoint
+    const fundingRate = 0.0001;
     const apy = fundingRate * 365 * 3 * 100;
     
     return {
-      symbol: m.name, // "BTC-USD", "ETH-USD", etc.
+      symbol: m.name, 
       lastPrice: lastPrice,
       priceChangePercent: priceChange,
       high24h: high,
       low24h: low,
       volume24h: volume,
-      openInterest: volume * 0.3, // Estimate OI as 30% of volume (Extended doesn't provide this)
+      openInterest: volume * 0.3,
       fundingRate: fundingRate,
       apy: apy,
     };
@@ -145,10 +131,6 @@ const fetchLiveMarkets = async (): Promise<Market[]> => {
   console.log(`✅ Loaded ${cryptoMarkets.length} markets`);
   return cryptoMarkets;
 };
-
-// ============================================================================
-// COMPONENTS
-// ============================================================================
 
 // Mini Sparkline Chart
 const Sparkline = ({ isPositive }: { isPositive: boolean }) => {
@@ -172,73 +154,73 @@ const Sparkline = ({ isPositive }: { isPositive: boolean }) => {
 const MarketListRow = ({ market, onClick }: { market: Market; onClick: () => void }) => {
   const isPositive = market.priceChangePercent >= 0;
 
-// Extract "BTC" from "BTC-USD"
   const symbol = market.symbol.split('-')[0].toUpperCase();
 
   return (
     <div 
       onClick={onClick} 
-      className="flex items-center gap-4 p-4 hover:bg-white/5 cursor-pointer transition-all border-b border-gray-900/50 group"
+      className="flex items-center gap-2 p-4 hover:bg-white/5 cursor-pointer transition-all border-b border-gray-900/50 group"
     >
-      {/* IMPROVED TOKEN ICON */}
+    {/* icon */}
       <div className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center shrink-0 border border-white/10 group-hover:border-blue-500/50 transition-colors">
         <TokenIcon 
           symbol={symbol} 
           size={24} 
-          variant="branded" // Use "branded" for colored logos
+          variant="branded"
         />
       </div>
 
       {/* Token Info */}
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 ">
         <div className="font-bold text-base">{market.symbol.replace('USDC', '/USDC').replace('USDT', '/USDT')}</div>
         <div className="text-xs text-gray-500">Perpetual</div>
       </div>
 
-      {/* Price */}
-      <div className="text-right min-w-100px">
-        <div className="font-mono font-semibold">${formatNum(market.lastPrice)}</div>
-        <div className={`text-xs font-mono flex items-center justify-end gap-1 ${
-          isPositive ? 'text-green-400' : 'text-red-400'
-        }`}>
-          {isPositive ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-          {formatPercent(market.priceChangePercent)}
-        </div>
+      <div className="flex w-full justify-between">
+            {/* Price */}
+          <div className="text-right min-w-100px">
+            <div className="font-mono font-semibold">${formatNum(market.lastPrice)}</div>
+            <div className={`text-xs font-mono flex items-center justify-end gap-1 ${
+              isPositive ? 'text-green-400' : 'text-red-400'
+            }`}>
+              {isPositive ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+              {formatPercent(market.priceChangePercent)}
+            </div>
+          </div>
+
+          {/* Volume */}
+          <div className="text-right min-w-80px hidden md:block">
+            <div className="text-xs text-gray-500 mb-1">24h Vol</div>
+            <div className="font-mono text-sm">{formatCompact(market.volume24h)}</div>
+          </div>
+
+          {/* Open Interest */}
+          <div className="text-right min-w-80px hidden lg:block">
+            <div className="text-xs text-gray-500 mb-1">Open Interest</div>
+            <div className="font-mono text-sm">{formatCompact(market.openInterest)}</div>
+          </div>
+
+          {/* Funding Rate */}
+          <div className="text-right min-w-80px hidden lg:block">
+            <div className="text-xs text-gray-500 mb-1">Funding</div>
+            <div className="font-mono text-sm text-yellow-400">
+              {market.fundingRate ? (market.fundingRate * 100).toFixed(4) + '%' : '---'}
+            </div>
+          </div>
+
+          {/* Chart */}
+          <div className="w-20 h-10 hidden xl:block">
+            <Sparkline isPositive={isPositive} />
+          </div>
+
       </div>
 
-      {/* Volume */}
-      <div className="text-right min-w-80px hidden md:block">
-        <div className="text-xs text-gray-500 mb-1">24h Vol</div>
-        <div className="font-mono text-sm">{formatCompact(market.volume24h)}</div>
-      </div>
-
-      {/* Open Interest */}
-      <div className="text-right min-w-80px hidden lg:block">
-        <div className="text-xs text-gray-500 mb-1">Open Interest</div>
-        <div className="font-mono text-sm">{formatCompact(market.openInterest)}</div>
-      </div>
-
-      {/* Funding Rate */}
-      <div className="text-right min-w-80px hidden lg:block">
-        <div className="text-xs text-gray-500 mb-1">Funding</div>
-        <div className="font-mono text-sm text-yellow-400">
-          {market.fundingRate ? (market.fundingRate * 100).toFixed(4) + '%' : '---'}
-        </div>
-      </div>
-
-      {/* Chart */}
-      <div className="w-20 h-10 hidden xl:block">
-        <Sparkline isPositive={isPositive} />
-      </div>
-
+      
       <ArrowRight className="w-5 h-5 text-gray-500" />
     </div>
   );
 };
 
-// ============================================================================
-// MAIN MARKETS PAGE
-// ============================================================================
 
 export default function MarketsPage() {
   const navigate = useNavigate();
@@ -248,7 +230,7 @@ export default function MarketsPage() {
   const [error, setError] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'volume' | 'change' | 'name'>('volume');
 
-  // Platform stats
+  // Platform statS
   const [stats, setStats] = useState({
     tvl: 0,
     volume24h: 0,
@@ -263,14 +245,13 @@ export default function MarketsPage() {
       const data = await fetchLiveMarkets();
       setMarkets(data);
       
-      // Calculate platform stats from live data
       const totalVolume = data.reduce((sum, m) => sum + m.volume24h, 0);
       const totalOI = data.reduce((sum, m) => sum + m.openInterest, 0);
       
       setStats({
         tvl: totalOI,
         volume24h: totalVolume,
-        trades24h: 0 // API doesn't provide this
+        trades24h: 0 
       });
       
     } catch (err: any) {
@@ -283,7 +264,6 @@ export default function MarketsPage() {
 
   useEffect(() => {
     loadMarkets();
-    
     // Refresh data every 30 seconds
     const interval = setInterval(loadMarkets, 30000);
     return () => clearInterval(interval);
@@ -300,7 +280,6 @@ export default function MarketsPage() {
     });
 
   const handleMarketClick = (symbol: string) => {
-    // Convert "BTC-USD" to "btcusd" for URL
     const slug = symbol.toLowerCase().replace('-', '');
     navigate(`/${slug}`);
   };
@@ -343,8 +322,8 @@ export default function MarketsPage() {
       <div className="min-h-screen bg-[#050507] text-white pb-24 lg:pb-0">
         
         {/* Hero Section */}
-        <div className="border-b border-gray-900 bg-linear-to-b from-[#0a0a0f] to-[#050507]">
-          <div className="max-w-7xl mx-auto px-6 py-12">
+        <div className="bg-linear-to-b from-[#0a0a0f] to-[#050507]">
+          <div className="max-w-7xl mx-auto px-6 py-10">
             
             {/* Title */}
             <div className="mb-8">
@@ -352,9 +331,6 @@ export default function MarketsPage() {
                 <h1 className="text-4xl md:text-5xl font-bold bg-linear-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
                   Trade Perpetuals
                 </h1>
-                {loading && (
-                  <RefreshCw className="w-5 h-5 text-blue-500 animate-spin" />
-                )}
               </div>
               <p className="text-gray-400 text-lg max-w-2xl">
                 Trade instantly with Vello. Backed by Extended Exchange and built on Starknet
@@ -391,10 +367,10 @@ export default function MarketsPage() {
         </div>
 
         {/* Markets Section */}
-        <div className="max-w-7xl mx-auto px-6 py-8">
+        <div className="max-w-6xl mx-auto px-6 py-8 border border-gray-800/25 rounded-xl">
           
           {/* Controls */}
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
+          <div className="flex flex-col md:flex-row gap-4 mb-4">
             <div className="flex-1 relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
               <input
@@ -402,18 +378,18 @@ export default function MarketsPage() {
                 placeholder="Search markets..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full bg-gray-900/50 border border-gray-800 rounded-xl pl-12 pr-4 py-3 focus:outline-none focus:border-blue-500 transition"
+                className="w-full bg-gray-900/50 rounded-xl pl-12 pr-4 py-3 focus:outline-none focus:border-blue-500 transition"
               />
             </div>
 
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="bg-gray-900/50 border border-gray-800 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 transition"
+              className="bg-gray-900 border border-gray-800 rounded-xl px-6 py-4 focus:outline-none focus:border-gray-500 transition"
             >
-              <option value="volume">Sort by Volume</option>
-              <option value="change">Sort by Change</option>
-              <option value="name">Sort by Name</option>
+              <option value="volume" className='rounded-md'>Sort by Volume</option>
+              <option value="change" className='rounded-md'>Sort by Change</option>
+              <option value="name"className='rounded-md'>Sort by Name</option>
             </select>
           </div>
 
@@ -449,7 +425,6 @@ export default function MarketsPage() {
         </div>
       </div>
 
-      {/* Your existing BottomNav component */}
       <BottomNav />
     </>
   );

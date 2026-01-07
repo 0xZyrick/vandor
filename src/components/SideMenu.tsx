@@ -1,4 +1,4 @@
-import { X, LayoutGrid, Activity, TrendingUp, Trophy, Wallet } from "lucide-react";
+import { X, LayoutGrid, Activity, TrendingUp, Trophy, Wallet,BookText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 // import { useState } from 'react';
 
@@ -12,6 +12,7 @@ export default function SideMenu({ isOpen, onClose }: { isOpen: boolean, onClose
     { name: 'Positions', icon: Activity, path: '/positions' },
     { name: 'Leaderboard', icon: Trophy, path: '/leaderboard' },
     { name: 'Portfolio', icon: Wallet, path: '/portfolio' },
+    { name: 'Docs', icon: BookText, path: '/docs' },
   ];
 
   if (!isOpen) return null;
@@ -22,7 +23,7 @@ export default function SideMenu({ isOpen, onClose }: { isOpen: boolean, onClose
       
       <div className="relative w-80 bg-[#0a0a0f] h-full border-r border-white/5 flex flex-col p-6 animate-in slide-in-from-left duration-300">
         <div className="flex justify-between items-center mb-10">
-          <div className="text-2xl font-black italic tracking-tighter text-white">VELLO</div>
+          <img src="/vandar.svg" alt="Vandor" className="h-8" />
           <button onClick={onClose} className="p-2 bg-white/5 rounded-full"><X className="w-5 h-5" /></button>
         </div>
 

@@ -4,12 +4,9 @@ import { Search, PanelRightClose, PanelRightOpen, TrendingUp, TrendingDown, Refr
 import OrderTicket from "../components/OrderTicket";
 import BottomNav from "../components/BottomNav";
 import OrderbookAndTrades from "../components/OrderbookAndTrades";
+import { TokenIcon } from '@token-icons/react';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */  
-
-// ============================================================================
-// TYPES
-// ============================================================================
 
 interface Market {
   symbol: string;
@@ -24,10 +21,6 @@ interface Market {
   indexPrice: number;
   markPrice: number;
 }
-
-// ============================================================================
-// UTILITY FUNCTIONS
-// ============================================================================
 
 const formatNum = (val: any, decimals = 2): string => {
   const num = Number(val);
@@ -52,10 +45,6 @@ const formatPercent = (val: any): string => {
   const sign = num >= 0 ? '+' : '';
   return `${sign}${num.toFixed(2)}%`;
 };
-
-// ============================================================================
-// API SERVICE
-// ============================================================================
 
 const fetchLiveMarkets = async (): Promise<Market[]> => {
   const apiUrl = import.meta.env.DEV 
@@ -116,10 +105,6 @@ const fetchLiveMarkets = async (): Promise<Market[]> => {
   return cryptoMarkets;
 };
 
-// ============================================================================
-// COMPONENTS
-// ============================================================================
-
 const MarketSidebar = ({ 
   markets, 
   currentSymbol, 
@@ -171,8 +156,10 @@ const MarketSidebar = ({
             {filteredMarkets.map((market) => {
               const isPositive = market.priceChangePercent >= 0;
               const isActive = market.symbol === currentSymbol;
-              
+              const symbol = market.symbol.split('-')[0].toUpperCase();
+
               return (
+              <div>
                 <div
                   key={market.symbol}
                   onClick={() => { onSelectMarket(market.symbol); onClose(); }}
@@ -182,9 +169,12 @@ const MarketSidebar = ({
                       : 'hover:bg-white/5 border border-transparent hover:border-gray-800'
                   }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-linear-to-tr from-blue-500 to-purple-600 flex items-center justify-center font-bold text-xs">
-                      {market.symbol.substring(0, 3)}
+                    <div className="w-9 h-9 rounded-full bg-gray-800 flex items-center justify-center shrink-0 border border-white/10 group-hover:border-blue-500/50 transition-colors">
+                      <TokenIcon 
+                        symbol={symbol} 
+                        size={24} 
+                        variant="branded"
+                      />
                     </div>
                     <div>
                       <p className="text-sm font-bold">{market.symbol.replace('-USD', '/USD')}</p>
@@ -229,9 +219,7 @@ const StatCard = ({
   </div>
 );
 
-// ============================================================================
 // MAIN TRADE PAGE
-// ============================================================================
 
 export default function TradePage() {
   const { pairSlug } = useParams<{ pairSlug: string }>();
@@ -265,13 +253,13 @@ export default function TradePage() {
     }
   };
 
-  const loadSavedMarket = (): string | null => {
-    try {
-      return localStorage.getItem('vello_current_market');
-    } catch (error) {
-      return null;
-    }
-  };
+    const loadSavedMarket = (): string | null => {
+      try {
+        return localStorage.getItem('vello_current_market');
+      } catch {
+        return null;
+      }
+    };
 
   const loadMarkets = async (showRefreshing = false) => {
     if (showRefreshing) {
@@ -313,15 +301,14 @@ export default function TradePage() {
     }
   };
 
-useEffect(() => {
+  useEffect(() => {
     loadMarkets();
     
-    // Only auto-refresh, don't show spinner
     const interval = setInterval(() => {
-      // Silent refresh - don't set isRefreshing
       loadMarkets(false);
     }, 30000);
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pairSlug]);
 
   useEffect(() => {
@@ -396,7 +383,7 @@ useEffect(() => {
                   }`}>
                     {formatPercent(currentMarket?.priceChangePercent)}
                   </span>
-                  {isRefreshing && <RefreshCw className="w-4 h-4 text-blue-500 animate-spin" />}
+                  {isRefreshing }
                 </div>
                 <div className="flex items-center gap-2 mt-1">
                   <span className={`text-2xl font-bold font-mono ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
@@ -459,14 +446,14 @@ useEffect(() => {
         )}
 
         {/* MAIN CONTENT */}
-        <div className="flex flex-1 overflow-hidden">
+        <div className="flex flex-1">
           
           {/* DESKTOP LAYOUT */}
-          <div className="hidden lg:flex flex-1">
+          <div className="hidden xl:flex flex-1">
             
             <div className="flex-1 flex flex-col">
               {/* Chart */}
-              <div className="flex-1 relative bg-[#0a0a0f] m-4 rounded-xl overflow-hidden border border-gray-800">
+              <div className="flex-1 relative bg-[#0a0a0f] m-4 rounded-xl h-full border border-gray-800">
                 
                 <button
                   onClick={() => setIsOrderbookOpen(!isOrderbookOpen)}
@@ -486,7 +473,7 @@ useEffect(() => {
                 />
               </div>
               
-              <div className="flex flex-col border-t border-gray-900 bg-[#0a0a0f]">
+              <div className="flex-col border-t border-gray-900 bg-[#0a0a0f] hidden xl:flex">
                 <div className="flex gap-6 px-6 py-3 border-b border-gray-900">
                   <button className="text-sm font-semibold pb-2 border-b-2 border-blue-500">Positions</button>
                   <button className="text-sm font-semibold pb-2 text-gray-600 hover:text-gray-400 transition">Orders</button>
@@ -509,7 +496,7 @@ useEffect(() => {
               </div>
             )}
 
-            <aside className="w-380px h-full">
+            <aside className="w-full h-full">
               <OrderTicket 
                 symbol={currentSymbol} 
                 currentPrice={currentMarket?.lastPrice}
@@ -518,7 +505,7 @@ useEffect(() => {
           </div>
 
           {/* MOBILE LAYOUT */}
-          <div className="lg:hidden flex flex-col w-full overflow-y-auto pb-20">
+          <div className="xl:hidden flex flex-col w-full overflow-y-auto pb-20">
             
             <div className="relative h-[60vh] bg-[#0a0a0f] border-b border-gray-800">
               
@@ -561,8 +548,8 @@ useEffect(() => {
         )}
 
         {isOrderbookOpen && (
-          <div className="lg:hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50">
-            <div className="w-full h-full bg-[#0a0a0f]">
+          <div className="xl:hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50">
+            <div className="w-full h-60vh bg-[#0a0a0f]">
               <OrderbookAndTrades 
                 symbol={currentSymbol}
                 onClose={() => setIsOrderbookOpen(false)}
