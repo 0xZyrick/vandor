@@ -37,7 +37,7 @@ class ExtendedExchangeService {
 
   constructor(config: ExtendedConfig) {
     this.config = config;
-    this.baseUrl = config.baseUrl || '/api/starknet/v1';
+    this.baseUrl = '/api';
   }
 
     // AUTHENTICATION

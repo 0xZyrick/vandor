@@ -1,7 +1,7 @@
 {
   "rewrites": [
     {
-      "source": "/api/starknet/:path*",
+      "source": "/api/:path*",
       "destination": "https://api.starknet.extended.exchange/api/:path*"
     }
   ]
