@@ -37,7 +37,9 @@ class ExtendedExchangeService {
 
   constructor(config: ExtendedConfig) {
     this.config = config;
-    this.baseUrl = '';
+    this.baseUrl = '/api'; 
+    
+    console.log("✅ Extended Exchange Service initialized with proxy path");
   }
 
     // AUTHENTICATION
