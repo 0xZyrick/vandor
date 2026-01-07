@@ -1,5 +1,3 @@
-
-
 import { Account } from 'starknet';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -38,27 +36,44 @@ class ExtendedExchangeService {
   constructor(config: ExtendedConfig) {
     this.config = config;
     
-    // Use /api for Vercel, full URL for local dev
-    this.baseUrl = import.meta.env.PROD 
-      ? '/api'  // Production: use Vercel proxy
-      : 'https://api.starknet.extended.exchange/api'; // Local: direct (with vite proxy)
+    // 🔥 ALWAYS use /api - no exceptions
+    this.baseUrl = '/api';
     
     console.log("✅ Extended Exchange Service initialized");
     console.log("📍 Base URL:", this.baseUrl);
   }
 
+  // 🛡️ SAFE FETCH - strips any full URLs and forces proxy
+  private async safeFetch(endpoint: string, options: RequestInit = {}) {
+    // Strip any full URLs that might sneak in
+    const cleanEndpoint = endpoint
+      .replace(/^https?:\/\/api\.starknet\.extended\.exchange/, '')
+      // eslint-disable-next-line no-useless-escape
+      .replace(/^https?:\/\/[^\/]+/, '');
+    
+    // Ensure it starts with /api
+    const url = cleanEndpoint.startsWith('/api') 
+      ? cleanEndpoint 
+      : `/api${cleanEndpoint.startsWith('/') ? cleanEndpoint : `/${cleanEndpoint}`}`;
+    
+    console.log("🔍 Fetching from:", url);
+    
+    const response = await fetch(url, {
+      ...options,
+      credentials: 'same-origin',
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`API Error ${response.status}: ${errorText}`);
+    }
+
+    return response.json();
+  }
+
   async fetchMarkets() {
     try {
-      const url = `${this.baseUrl}/v1/info/markets`;
-      console.log("🔍 Fetching markets from:", url);
-      
-      const response = await fetch(url);
-      
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-      
-      const data = await response.json();
+      const data = await this.safeFetch('/v1/info/markets');
       console.log("✅ Markets loaded successfully");
       return data;
     } catch (error) {
@@ -90,7 +105,8 @@ class ExtendedExchangeService {
     endpoint: string,
     body?: any
   ): Promise<T> {
-    const url = `${this.baseUrl}${endpoint}`;
+    // Strip /api prefix if it exists since safeFetch adds it
+    const cleanEndpoint = endpoint.replace(/^\/api/, '');
     
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
@@ -99,18 +115,11 @@ class ExtendedExchangeService {
     };
 
     try {
-      const response = await fetch(url, {
+      const data = await this.safeFetch(cleanEndpoint, {
         method,
         headers,
         body: body ? JSON.stringify(body) : undefined,
       });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`API Error ${response.status}: ${errorText}`);
-      }
-
-      const data = await response.json();
       return data;
     } catch (error: any) {
       console.error(`❌ ${method} ${endpoint} failed:`, error);
@@ -122,23 +131,23 @@ class ExtendedExchangeService {
   
 
   async getMarkets() {
-    return this.makeRequest('GET', '/api/v1/info/markets');
+    return this.makeRequest('GET', '/v1/info/markets');
   }
 
 
   async getMarketStats(market: string) {
-    return this.makeRequest('GET', `/api/v1/info/markets/${market}/stats`);
+    return this.makeRequest('GET', `/v1/info/markets/${market}/stats`);
   }
 
   async getFees() {
-    return this.makeRequest('GET', '/api/v1/info/fees');
+    return this.makeRequest('GET', '/v1/info/fees');
   }
 
   /**
    * Get orderbook depth
    */
   async getOrderbook(market: string, depth: number = 20) {
-    return this.makeRequest('GET', `/api/v1/info/orderbook/${market}?depth=${depth}`);
+    return this.makeRequest('GET', `/v1/info/orderbook/${market}?depth=${depth}`);
   }
 
 
@@ -150,7 +159,7 @@ class ExtendedExchangeService {
         }
 
         try {
-          const data: any = await this.makeRequest('GET', '/api/v1/private/account');
+          const data: any = await this.makeRequest('GET', '/v1/private/account');
           
           return {
             available: parseFloat(data.data?.availableBalance || '0'),
@@ -173,7 +182,7 @@ class ExtendedExchangeService {
       }
 
       try {
-        const data: any = await this.makeRequest('GET', '/api/v1/private/positions');
+        const data: any = await this.makeRequest('GET', '/v1/private/positions');
         
         const positions = data.data?.positions || [];
         const totalPnL = positions.reduce((sum: number, p: any) => 
@@ -208,8 +217,8 @@ class ExtendedExchangeService {
 
     try {
       const endpoint = market 
-        ? `/api/v1/private/orders?market=${market}` 
-        : '/api/v1/private/orders';
+        ? `/v1/private/orders?market=${market}` 
+        : '/v1/private/orders';
       
       const data: any = await this.makeRequest('GET', endpoint);
       return data.data?.orders || [];
@@ -234,7 +243,7 @@ class ExtendedExchangeService {
       if (params?.market) queryParams.append('market', params.market);
       if (params?.limit) queryParams.append('limit', params.limit.toString());
       
-      const endpoint = `/api/v1/private/orders/history?${queryParams}`;
+      const endpoint = `/v1/private/orders/history?${queryParams}`;
       const data: any = await this.makeRequest('GET', endpoint);
 
       return data.data?.orders || [];
@@ -327,7 +336,7 @@ class ExtendedExchangeService {
     try {
       console.log("❌ Cancelling order:", orderId);
       
-      const data: any = await this.makeRequest('DELETE', `/api/v1/private/orders/${orderId}`);
+      const data: any = await this.makeRequest('DELETE', `/v1/private/orders/${orderId}`);
 
       return {
         success: true,
