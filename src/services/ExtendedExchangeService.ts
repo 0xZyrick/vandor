@@ -37,7 +37,7 @@ class ExtendedExchangeService {
 
   constructor(config: ExtendedConfig) {
     this.config = config;
-    this.baseUrl = '/api';
+    this.baseUrl = window.location.origin + '/api';
   }
 
     // AUTHENTICATION
