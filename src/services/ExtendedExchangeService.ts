@@ -37,9 +37,34 @@ class ExtendedExchangeService {
 
   constructor(config: ExtendedConfig) {
     this.config = config;
-    this.baseUrl = '/api'; 
     
-    console.log("✅ Extended Exchange Service initialized with proxy path");
+    // Use /api for Vercel, full URL for local dev
+    this.baseUrl = import.meta.env.PROD 
+      ? '/api'  // Production: use Vercel proxy
+      : 'https://api.starknet.extended.exchange/api'; // Local: direct (with vite proxy)
+    
+    console.log("✅ Extended Exchange Service initialized");
+    console.log("📍 Base URL:", this.baseUrl);
+  }
+
+  async fetchMarkets() {
+    try {
+      const url = `${this.baseUrl}/v1/info/markets`;
+      console.log("🔍 Fetching markets from:", url);
+      
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      console.log("✅ Markets loaded successfully");
+      return data;
+    } catch (error) {
+      console.error("❌ Failed to load markets:", error);
+      throw error;
+    }
   }
 
     // AUTHENTICATION
