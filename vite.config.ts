@@ -11,12 +11,12 @@ export default defineConfig({
   ],
   server: {
     proxy: {
-      '/api': {
-        target: 'https://api.starknet.extended.exchange',
+      '/api/starknet': {
+        target: 'https://api.starknet.extended.exchange/api',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, '/api'),
+        rewrite: (path) => path.replace(/^\/api\/starknet/, ''),
         secure: false,
-      }
-    }
+      },
+    },
   },
 })
