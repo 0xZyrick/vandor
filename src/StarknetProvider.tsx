@@ -1,7 +1,3 @@
-// ============================================
-// StarknetProvider.tsx - CORRECT CARTRIDGE IMPLEMENTATION
-// ============================================
-
 import React from 'react';
 import { sepolia, mainnet } from "@starknet-react/chains";
 import { 
@@ -13,35 +9,29 @@ import {
   useInjectedConnectors,
   Connector
 } from "@starknet-react/core";
-
-// CORRECT: Use @cartridge/controller (not @cartridge/connector)
 import ControllerConnector from "@cartridge/controller";
 
 export function StarknetProvider({ children }: { children: React.ReactNode }) {
   
-  // Injected wallets (Argent X, Braavos)
   const { connectors: injectedConnectors } = useInjectedConnectors({
-    recommended: [
-      argent(),
-      braavos(), 
-    ],
+    recommended: [argent(), braavos()],
     includeRecommended: "always"
   });
 
-  // Cartridge Controller - CORRECT WAY
+  // Cartridge Controller - use testnet RPC
+  const isTestnet = import.meta.env.VITE_TESTNET_MODE === 'true';
+  
   const controller = new ControllerConnector({
-    rpcUrl: "https://api.cartridge.gg/x/starknet/mainnet",
+    rpcUrl: isTestnet 
+      ? "https://api.cartridge.gg/x/starknet/sepolia"
+      : "https://api.cartridge.gg/x/starknet/mainnet",
   }) as never as Connector;
 
-  // Combine all connectors
-  const allConnectors = [
-    controller,
-    ...injectedConnectors
-  ];
+  const allConnectors = [controller, ...injectedConnectors];
 
   return (
     <StarknetConfig
-      chains={[mainnet, sepolia]}
+      chains={isTestnet ? [sepolia] : [mainnet, sepolia]}
       provider={publicProvider()}
       connectors={allConnectors}
       explorer={voyager}
@@ -53,13 +43,3 @@ export function StarknetProvider({ children }: { children: React.ReactNode }) {
 }
 
 export default StarknetProvider;
-
-
-// ============================================
-// INSTALLATION COMMAND (CORRECT)
-// ============================================
-// npm install @cartridge/controller
-// or
-// yarn add @cartridge/controller
-// or 
-// pnpm add @cartridge/controller

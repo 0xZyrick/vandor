@@ -1,4 +1,4 @@
-import { X, LayoutGrid, Activity, TrendingUp, Trophy, Wallet,BookText } from "lucide-react";
+import { X, LayoutGrid, TrendingUp, Trophy, Wallet,BookText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 // import { useState } from 'react';
 
@@ -8,8 +8,7 @@ export default function SideMenu({ isOpen, onClose }: { isOpen: boolean, onClose
   
   const links = [
     { name: 'Markets', icon: LayoutGrid, path: '/markets' },
-    { name: 'Trade', icon: TrendingUp, path: '/trade/btcusdc' },
-    { name: 'Positions', icon: Activity, path: '/positions' },
+    { name: 'Trade', icon: TrendingUp, path: '/btcusdc' },
     { name: 'Leaderboard', icon: Trophy, path: '/leaderboard' },
     { name: 'Portfolio', icon: Wallet, path: '/portfolio' },
     { name: 'Docs', icon: BookText, path: '/docs' },

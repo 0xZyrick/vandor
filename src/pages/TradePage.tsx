@@ -515,7 +515,7 @@ export default function TradePage() {
               </div>
             )}
 
-            <aside className="w-96 p-2 overflow-y-auto">
+            <aside className="w-96 overflow-y-auto">
               <OrderTicket 
                 symbol={currentSymbol} 
                 currentPrice={currentMarket?.lastPrice}
@@ -524,7 +524,7 @@ export default function TradePage() {
           </div>
 
           {/* MOBILE LAYOUT */}
-          <div className="xl:hidden flex-1 flex flex-col overflow-y-auto pb-20">
+          <div className="xl:hidden flex-1 flex flex-col">
 
             {/* Mobile View Switcher */}
             <div className="sticky top-0 z-10 bg-[#0a0a0f] border-b border-gray-800 px-4 py-3">

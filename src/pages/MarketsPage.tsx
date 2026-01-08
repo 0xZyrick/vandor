@@ -171,7 +171,7 @@ const MarketListRow = ({ market, onClick }: { market: Market; onClick: () => voi
       </div>
 
       {/* Token Info */}
-      <div className="flex-1 gap-3 ">
+      <div className="flex-1 gap-3 min-w-150px">
         <div className="font-bold text-base">{market.symbol.replace('USDC', '/USDC').replace('USDT', '/USDT')}</div>
         <div className="text-xs text-gray-500">Perpetual</div>
       </div>

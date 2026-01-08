@@ -99,9 +99,9 @@ export default function Header() {
         <div className="hidden xl:flex">
           <nav className="flex items-center space-x-7">
             <a href="/markets" className="text-[16px] font-medium text-gray-400 hover:text-white transition">Markets</a>
-            <a href="/btc/usdc" className="text-[16px] font-medium text-gray-400 hover:text-white transition">Trade</a>
+            <a href="/btcusdc" className="text-[16px] font-medium text-gray-400 hover:text-white transition">Trade</a>
             <a href="/portfolio" className="text-[16px] font-medium text-gray-400 hover:text-white transition">Portfolio</a>
-            <a href="/leaderboard" className="text-[16px] font-medium text-gray-800 hover:text-white transition">Leaderboard<span className="text-xs bg-gray-800 p-1 rounded">coming soon</span></a>
+            <a href="/leaderboard" className="text-[16px] font-medium text-gray-800 hover:text-white transition p-0.5">Leaderboard<span className="text-xs text-white bg-blue-800 p-0.5 rounded">coming soon</span></a>
             <a href="/docs" className="text-[16px] font-medium text-gray-400 hover:text-white transition">Docs</a>
           </nav>
         </div>
