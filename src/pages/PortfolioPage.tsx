@@ -14,7 +14,6 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { useExtendedExchange } from '../contexts/ExtendedExchangeContext';
-import Header from '../components/Header';
 import BottomNav from '../components/BottomNav';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -119,7 +118,6 @@ export default function PortfolioPage() {
   if (!isConnected) {
     return (
       <>
-        <Header />
         <div className="min-h-screen bg-[#050507] flex items-center justify-center p-6">
           <div className="text-center max-w-md">
             <Wallet className="w-16 h-16 text-gray-600 mx-auto mb-4" />
@@ -134,8 +132,6 @@ export default function PortfolioPage() {
 
   return (
     <>
-      <Header />
-      
       <div className="min-h-screen bg-[#050507] text-white pb-24">
         {/* Portfolio Header */}
         <div className="bg-[#0a0a0f] border-b border-gray-900 p-6">
@@ -166,7 +162,7 @@ export default function PortfolioPage() {
               {/* Total Equity */}
               <div className="bg-gray-900/50 rounded-xl p-4 border border-gray-800">
                 <div className="flex items-center gap-2 mb-2">
-                  <DollarSign className="w-4 h-4 text-blue-400" />
+                  <DollarSign className="w-4 h-4 text-gray-400" />
                   <span className="text-xs text-gray-500 uppercase">Total Equity</span>
                 </div>
                 <p className="text-2xl font-bold font-mono">${totalEquity.toFixed(2)}</p>
@@ -175,7 +171,7 @@ export default function PortfolioPage() {
               {/* Unrealized PnL */}
               <div className="bg-gray-900/50 rounded-xl p-4 border border-gray-800">
                 <div className="flex items-center gap-2 mb-2">
-                  <Activity className="w-4 h-4 text-yellow-400" />
+                  <Activity className="w-4 h-4 text-gray-400" />
                   <span className="text-xs text-gray-500 uppercase">Unrealized PnL</span>
                 </div>
                 <p className={`text-2xl font-bold font-mono ${
@@ -188,7 +184,7 @@ export default function PortfolioPage() {
               {/* USDC Balance */}
               <div className="bg-gray-900/50 rounded-xl p-4 border border-gray-800">
                 <div className="flex items-center gap-2 mb-2">
-                  <Wallet className="w-4 h-4 text-green-400" />
+                  <Wallet className="w-4 h-4 text-gray-400" />
                   <span className="text-xs text-gray-500 uppercase">USDC Balance</span>
                 </div>
                 <p className="text-2xl font-bold font-mono">${usdcBalance.toFixed(2)}</p>
@@ -197,7 +193,7 @@ export default function PortfolioPage() {
               {/* Available Margin */}
               <div className="bg-gray-900/50 rounded-xl p-4 border border-gray-800">
                 <div className="flex items-center gap-2 mb-2">
-                  <TrendingUp className="w-4 h-4 text-purple-400" />
+                  <TrendingUp className="w-4 h-4 text-gray-400" />
                   <span className="text-xs text-gray-500 uppercase">Available Margin</span>
                 </div>
                 <p className="text-2xl font-bold font-mono">${marginAvailable.toFixed(2)}</p>

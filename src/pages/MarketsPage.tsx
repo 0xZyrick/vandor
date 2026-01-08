@@ -162,7 +162,7 @@ const MarketListRow = ({ market, onClick }: { market: Market; onClick: () => voi
       className="flex items-center gap-2 p-4 hover:bg-white/5 cursor-pointer transition-all border-b border-gray-900/50 group"
     >
     {/* icon */}
-      <div className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center shrink-0 border border-white/10 group-hover:border-blue-500/50 transition-colors">
+      <div className="w-10 h-10 rounded-full bg-linear-to-r from-blue-400 to-purple-500 flex items-center justify-center shrink-0 border border-white/10 group-hover:border-blue-500/50 transition-colors">
         <TokenIcon 
           symbol={symbol} 
           size={24} 
@@ -171,7 +171,7 @@ const MarketListRow = ({ market, onClick }: { market: Market; onClick: () => voi
       </div>
 
       {/* Token Info */}
-      <div className="flex-1 min-w-0 ">
+      <div className="flex-1 gap-3 ">
         <div className="font-bold text-base">{market.symbol.replace('USDC', '/USDC').replace('USDT', '/USDT')}</div>
         <div className="text-xs text-gray-500">Perpetual</div>
       </div>

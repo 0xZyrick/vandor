@@ -165,7 +165,7 @@ const MarketSidebar = ({
                       : 'hover:bg-white/5 border border-transparent hover:border-gray-800'
                   }`}
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex-1 items-center gap-3">  .
                     <div className="w-9 h-9 rounded-full bg-gray-800 flex items-center justify-center shrink-0 border border-white/10 hover:border-blue-500/50 transition-colors">
                       <TokenIcon 
                         symbol={symbol} 
@@ -515,7 +515,7 @@ export default function TradePage() {
               </div>
             )}
 
-            <aside className="w-96 p-6 overflow-y-auto">
+            <aside className="w-96 p-2 overflow-y-auto">
               <OrderTicket 
                 symbol={currentSymbol} 
                 currentPrice={currentMarket?.lastPrice}
@@ -562,7 +562,7 @@ export default function TradePage() {
             )}
 
             {/* Order Ticket */}
-            <div ref={orderTicketRef} className="bg-[#0a0a0f]">
+            <div ref={orderTicketRef} className="bg-[#0a0a0f] w-full">
               <OrderTicket 
                 symbol={currentSymbol} 
                 currentPrice={currentMarket?.lastPrice}

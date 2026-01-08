@@ -74,8 +74,8 @@ export default function Header() {
 
       {/* Welcome Toast */}
       {showWelcomeToast && (
-        <div className="fixed top-20 right-6 z-100 animate-in slide-in-from-top-5 duration-300">
-          <div className="bg-linear-to-r from-green-500/10 to-emerald-500/10 border border-green-500/30 rounded-2xl p-4 shadow-2xl backdrop-blur-xl flex items-center gap-3 min-w-[300px]">
+        <div className="fixed top-20 right-6 z-100 animate-in slide-in-from-top-5 duration-3000">
+          <div className="bg-linear-to-r from-green-500/10 to-emerald-500/10 border border-green-500/30 rounded-2xl p-4 shadow-2xl backdrop-blur-xl flex items-center gap-3 min-w-300px">
             <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center shrink-0">
               <CheckCircle className="w-5 h-5 text-white" />
             </div>
@@ -99,10 +99,10 @@ export default function Header() {
         <div className="hidden xl:flex">
           <nav className="flex items-center space-x-7">
             <a href="/markets" className="text-[16px] font-medium text-gray-400 hover:text-white transition">Markets</a>
-            <a href="/trade" className="text-[16px] font-medium text-gray-400 hover:text-white transition">Trade</a>
-            <a href="/account" className="text-[16px] font-medium text-gray-800 hover:text-white transition">Portfolio</a>
-            <a href="/leaderboard" className="text-[16px] font-medium text-gray-800 hover:text-white transition">Leaderboard</a>
-            <a href="/docs" className="text-[16px] font-medium text-gray-800 hover:text-white transition">Docs</a>
+            <a href="/btc/usdc" className="text-[16px] font-medium text-gray-400 hover:text-white transition">Trade</a>
+            <a href="/portfolio" className="text-[16px] font-medium text-gray-400 hover:text-white transition">Portfolio</a>
+            <a href="/leaderboard" className="text-[16px] font-medium text-gray-800 hover:text-white transition">Leaderboard<span className="text-xs bg-gray-800 p-1 rounded">coming soon</span></a>
+            <a href="/docs" className="text-[16px] font-medium text-gray-400 hover:text-white transition">Docs</a>
           </nav>
         </div>
 
@@ -163,9 +163,9 @@ export default function Header() {
             ) : (
               <button 
                 onClick={() => setShowLoginModal(true)}
-                className="px-8 py-2.5 bg-blue-400 text-black font-black rounded-full hover:bg-white transition uppercase text-xs tracking-wider"
+                className="px-4 py-2.5 bg-blue-500 text-black font-black rounded-full hover:bg-white transition uppercase text-xs tracking-wide"
               >
-                {connectionStatus === 'connecting' ? 'Connecting...' : 'Connect Wallet'}
+                {connectionStatus === 'connecting' ? 'Connecting...' : 'log in'}
               </button>
             )}
           </div>

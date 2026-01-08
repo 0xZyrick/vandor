@@ -1,7 +1,7 @@
 // ============================================
 // StarknetProvider.tsx - CORRECT CARTRIDGE IMPLEMENTATION
 // ============================================
-"use client"
+
 import React from 'react';
 import { sepolia, mainnet } from "@starknet-react/chains";
 import { 
@@ -53,3 +53,13 @@ export function StarknetProvider({ children }: { children: React.ReactNode }) {
 }
 
 export default StarknetProvider;
+
+
+// ============================================
+// INSTALLATION COMMAND (CORRECT)
+// ============================================
+// npm install @cartridge/controller
+// or
+// yarn add @cartridge/controller
+// or 
+// pnpm add @cartridge/controller
