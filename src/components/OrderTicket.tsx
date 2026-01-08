@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAccount } from "@starknet-react/core";
 import { Settings2, AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
-import { useExtendedExchange } from '../contexts/ExtendedExchangeContext';
+import  { useExtendedExchange } from "../contexts/ExtendedExchangeContext"
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 

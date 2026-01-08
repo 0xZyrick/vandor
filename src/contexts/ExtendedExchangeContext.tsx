@@ -4,13 +4,9 @@ import { createContext, useContext, useState, useEffect, type ReactNode } from '
 import { useAccount } from '@starknet-react/core';
 import { initializeExtendedService, getExtendedService } from '../services/ExtendedExchangeService';
 
-
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-
 // TYPES
-
 interface Position {
   id: string;
   symbol: string;
@@ -42,96 +38,57 @@ interface Balance {
 }
 
 interface ExtendedExchangeContextType {
-  // Service
   isConnected: boolean;
   isInitialized: boolean;
-  
-  // Data
   positions: Position[];
   orders: Order[];
   balance: Balance | null;
-  
-  // Loading states
   loadingPositions: boolean;
   loadingOrders: boolean;
   loadingBalance: boolean;
-  
-  // Actions
   placeOrder: (params: any) => Promise<any>;
   cancelOrder: (orderId: string) => Promise<any>;
   closePosition: (params: any) => Promise<any>;
-  
-  // Refresh functions
   refreshPositions: () => Promise<void>;
   refreshOrders: () => Promise<void>;
   refreshBalance: () => Promise<void>;
   refreshAll: () => Promise<void>;
 }
 
-// CONTEXT
-
 const ExtendedExchangeContext = createContext<ExtendedExchangeContextType | undefined>(undefined);
-
-// PROVIDER
 
 export function ExtendedExchangeProvider({ children }: { children: ReactNode }) {
   const { account } = useAccount();
   
-  // Service state
   const [isInitialized, setIsInitialized] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
-  
-  // Data
   const [positions, setPositions] = useState<Position[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [balance, setBalance] = useState<Balance | null>(null);
-  
-  // Loading states
   const [loadingPositions, setLoadingPositions] = useState(false);
   const [loadingOrders, setLoadingOrders] = useState(false);
   const [loadingBalance, setLoadingBalance] = useState(false);
 
-  // INITIALIZE SERVICE
-
+  // INITIALIZE SERVICE FOR TESTNET
   useEffect(() => {
     try {
-      // Get credentials from environment variables
-      const apiKey = import.meta.env.VITE_EXTENDED_API_KEY;
-      const starkKey = import.meta.env.VITE_EXTENDED_STARK_KEY;
-      const clientId = import.meta.env.VITE_EXTENDED_CLIENT_ID;
-      const vaultNumber = import.meta.env.VITE_EXTENDED_VAULT_NUMBER;
-
-      if (!apiKey) {
-        console.warn('⚠️ VITE_EXTENDED_API_KEY not found in .env');
-        console.log('📋 To enable Extended Exchange integration:');
-        console.log('1. Go to https://extended.exchange');
-        console.log('2. Navigate to Account > API Management');
-        console.log('3. Create API credentials');
-        console.log('4. Add to your .env file:');
-        console.log('   VITE_EXTENDED_API_KEY=your_api_key');
-        console.log('   VITE_EXTENDED_STARK_KEY=your_stark_key');
-        console.log('   VITE_EXTENDED_CLIENT_ID=your_client_id');
-        console.log('   VITE_EXTENDED_VAULT_NUMBER=your_vault');
-        return;
-      }
-
+      // For testnet, these can be empty strings since we're just reading public data
       initializeExtendedService({
-        apiKey: apiKey || '',
-        starkPrivateKey: starkKey || '',
-        clientId: clientId || '',
-        vaultNumber: parseInt(vaultNumber || '0'),
+        apiKey: '',
+        starkPrivateKey: '',
+        clientId: 'VANDOR_TESTNET',
+        vaultNumber: 0,
         network: 'sepolia',
       });
       
       setIsInitialized(true);
-      console.log('✅ Extended Exchange Service initialized');
+      console.log('✅ Extended Exchange Service initialized (TESTNET MODE)');
     } catch (error) {
       console.error('❌ Failed to initialize Extended Exchange:', error);
     }
   }, []);
 
   // CONNECT WALLET
-
   useEffect(() => {
     if (account && isInitialized) {
       try {
@@ -139,7 +96,6 @@ export function ExtendedExchangeProvider({ children }: { children: ReactNode }) 
         service.connectWallet(account as any);
         setIsConnected(true);
         console.log('✅ Wallet connected to Extended Exchange');
-        
         refreshAll();
       } catch (error) {
         console.error('❌ Failed to connect wallet:', error);
@@ -154,7 +110,6 @@ export function ExtendedExchangeProvider({ children }: { children: ReactNode }) 
   }, [account, isInitialized]);
 
   // REFRESH FUNCTIONS
-
   const refreshPositions = async () => {
     if (!isConnected || !isInitialized) return;
     
@@ -166,7 +121,6 @@ export function ExtendedExchangeProvider({ children }: { children: ReactNode }) 
       console.log('✅ Positions refreshed:', newPositions.length);
     } catch (error) {
       console.error('❌ Failed to refresh positions:', error);
-      // Don't throw - keep old data
     } finally {
       setLoadingPositions(false);
     }
@@ -213,7 +167,6 @@ export function ExtendedExchangeProvider({ children }: { children: ReactNode }) 
   };
 
   // AUTO-REFRESH (every 10 seconds)
-
   useEffect(() => {
     if (!isConnected) return;
     
@@ -222,19 +175,17 @@ export function ExtendedExchangeProvider({ children }: { children: ReactNode }) 
     }, 10000);
     
     return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isConnected]);
 
   // TRADING ACTIONS
-
   const placeOrder = async (params: any) => {
     if (!isInitialized) throw new Error('Service not initialized');
     
     const service = getExtendedService();
     const result = await service.placeOrder(params);
     
-    if (result.success) {
-      // Refresh data after successful order
+    if ((result as any).success) {
       await refreshAll();
     }
     
@@ -260,14 +211,12 @@ export function ExtendedExchangeProvider({ children }: { children: ReactNode }) 
     const service = getExtendedService();
     const result = await service.closePosition(params);
     
-    if (result.success) {
+    if ((result as any).success) {
       await refreshAll();
     }
     
     return result;
   };
-
-  // CONTEXT VALUE
 
   const value: ExtendedExchangeContextType = {
     isConnected,
@@ -294,9 +243,8 @@ export function ExtendedExchangeProvider({ children }: { children: ReactNode }) 
   );
 }
 
-// HOOK
 // eslint-disable-next-line react-refresh/only-export-components
-export function useExtendedExchange() {
+export function useExtended() {
   const context = useContext(ExtendedExchangeContext);
   
   if (context === undefined) {

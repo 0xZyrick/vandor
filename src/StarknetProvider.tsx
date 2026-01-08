@@ -1,5 +1,5 @@
 import React from 'react';
-import { sepolia} from "@starknet-react/chains";
+import { sepolia } from "@starknet-react/chains";
 import {
   StarknetConfig,
   publicProvider,
@@ -7,33 +7,37 @@ import {
   braavos,
   voyager,
   useInjectedConnectors,
+  Connector
 } from "@starknet-react/core";
 
-// NEW: Cartridge imports
-import { CartridgeController } from "@cartridge/controller";
-
-const cartridgeConnector = new CartridgeController({
-  // Tip: For testing, you don't actually need a project ID, 
-  // but it's better to get one from controller.cartridge.gg
-  projectId: "VANDOR_TESTNET_01", 
-  rpc: "https://api.cartridge.gg/x/starknet/sepolia", // ✅ Changed to Sepolia
-}).connector();
+// CORRECT Cartridge import
+import ControllerConnector from "@cartridge/controller";
 
 export function StarknetProvider({ children }: { children: React.ReactNode }) {
-  const { connectors } = useInjectedConnectors({
+  const { connectors: injectedConnectors } = useInjectedConnectors({
     recommended: [
       argent(),
       braavos(),
-      cartridgeConnector,
     ],
     includeRecommended: "always",
   });
 
+  // Cartridge Controller for Sepolia testnet
+  const controller = new ControllerConnector({
+    rpcUrl: "https://api.cartridge.gg/x/starknet/sepolia",
+  }) as never as Connector;
+
+  // Combine all connectors
+  const allConnectors = [
+    controller,
+    ...injectedConnectors
+  ];
+
   return (
     <StarknetConfig
-      chains={[sepolia]} // ✅ Default to Sepolia only for now to avoid confusion
+      chains={[sepolia]}
       provider={publicProvider()}
-      connectors={connectors}
+      connectors={allConnectors}
       explorer={voyager}
       autoConnect
     >
@@ -41,3 +45,5 @@ export function StarknetProvider({ children }: { children: React.ReactNode }) {
     </StarknetConfig>
   );
 }
+
+export default StarknetProvider;
