@@ -3,6 +3,7 @@ import { useConnect, useAccount, useDisconnect, useBalance } from "@starknet-rea
 import PositionsDropdown from "../components/PositionsDropdown";
 import { Menu, Settings, LogOut, HelpCircle, User, X, Wallet, Mail, CheckCircle } from "lucide-react";
 import SideMenu from "./SideMenu";
+import { connect as starknetKitConnect } from "starknetkit";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -17,10 +18,12 @@ export default function Header() {
   const [showWelcomeToast, setShowWelcomeToast] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'idle' | 'connecting' | 'success' | 'error'>('idle');
 
-  // Detect wallet type for display
   const getWalletType = () => {
     if (!connector) return 'Wallet';
-    if (connector.id.includes('cartridge')) return 'Controller';
+    // Cartridge often identifies as 'controller'
+    if (connector.id.toLowerCase().includes('cartridge') || connector.id.toLowerCase().includes('controller')) {
+       return 'Cartridge';
+    }
     if (connector.id.includes('argent')) return 'Argent X';
     if (connector.id.includes('braavos')) return 'Braavos';
     return connector.name || 'Wallet';
@@ -46,17 +49,29 @@ export default function Header() {
     }
   }, [isConnected, connectionStatus]);
 
-  const handleConnect = async (connector: any) => {
-    setConnectionStatus('connecting');
-    try {
-      await connect({ connector });
-      setShowLoginModal(false);
-    } catch (error) {
-      console.error('Connection failed:', error);
-      setConnectionStatus('error');
-      setTimeout(() => setConnectionStatus('idle'), 2000);
+  const handleConnect = async (selectedConnector?: any) => {
+  setConnectionStatus('connecting');
+  
+  try {
+    // If a specific connector was clicked (like Cartridge or Argent)
+    if (selectedConnector) {
+      await connect({ connector: selectedConnector });
+    } else {
+      // SMART MOBILE FALLBACK: If they just click "Connect" 
+      // This opens the professional StarknetKit modal (perfect for mobile)
+      const { connector } = await starknetKitConnect({
+        connectors: connectors as any,
+        dappName: "Vandor",
+      });
+      if (connector) await connect({ connector });
     }
-  };
+    
+    setShowLoginModal(false);
+  } catch (error) {
+    console.error('Connection failed:', error);
+    setConnectionStatus('error');
+  }
+};
 
   const handleDisconnect = () => {
     disconnect();

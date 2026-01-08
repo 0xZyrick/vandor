@@ -1,39 +1,39 @@
 import React from 'react';
-import { sepolia, mainnet } from "@starknet-react/chains";
-import { 
-  StarknetConfig, 
-  publicProvider, 
+import { sepolia} from "@starknet-react/chains";
+import {
+  StarknetConfig,
+  publicProvider,
   argent,
   braavos,
   voyager,
   useInjectedConnectors,
-  Connector
 } from "@starknet-react/core";
-import ControllerConnector from "@cartridge/controller";
+
+// NEW: Cartridge imports
+import { CartridgeController } from "@cartridge/controller";
+
+const cartridgeConnector = new CartridgeController({
+  // Tip: For testing, you don't actually need a project ID, 
+  // but it's better to get one from controller.cartridge.gg
+  projectId: "VANDOR_TESTNET_01", 
+  rpc: "https://api.cartridge.gg/x/starknet/sepolia", // ✅ Changed to Sepolia
+}).connector();
 
 export function StarknetProvider({ children }: { children: React.ReactNode }) {
-  
-  const { connectors: injectedConnectors } = useInjectedConnectors({
-    recommended: [argent(), braavos()],
-    includeRecommended: "always"
+  const { connectors } = useInjectedConnectors({
+    recommended: [
+      argent(),
+      braavos(),
+      cartridgeConnector,
+    ],
+    includeRecommended: "always",
   });
-
-  // Cartridge Controller - use testnet RPC
-  const isTestnet = import.meta.env.VITE_TESTNET_MODE === 'true';
-  
-  const controller = new ControllerConnector({
-    rpcUrl: isTestnet 
-      ? "https://api.cartridge.gg/x/starknet/sepolia"
-      : "https://api.cartridge.gg/x/starknet/mainnet",
-  }) as never as Connector;
-
-  const allConnectors = [controller, ...injectedConnectors];
 
   return (
     <StarknetConfig
-      chains={isTestnet ? [sepolia] : [mainnet, sepolia]}
+      chains={[sepolia]} // ✅ Default to Sepolia only for now to avoid confusion
       provider={publicProvider()}
-      connectors={allConnectors}
+      connectors={connectors}
       explorer={voyager}
       autoConnect
     >
@@ -41,5 +41,3 @@ export function StarknetProvider({ children }: { children: React.ReactNode }) {
     </StarknetConfig>
   );
 }
-
-export default StarknetProvider;

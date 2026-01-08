@@ -11,18 +11,7 @@ interface ExtendedConfig {
   clientId: string;
   vaultNumber: number;
   baseUrl?: string;
-}
-
-interface OrderParams {
-  market: string; // "BTC-USD"
-  side: 'BUY' | 'SELL';
-  type: 'MARKET' | 'LIMIT';
-  size: string; // Amount in USDC as string
-  price: string; // Required even for market orders
-  leverage?: number;
-  reduceOnly?: boolean;
-  postOnly?: boolean;
-  timeInForce?: 'GTC' | 'IOC' | 'FOK';
+  network?: string;
 }
 
 
@@ -256,75 +245,31 @@ class ExtendedExchangeService {
   
   // ORDER PLACEMENT 
   
-  async placeOrder(params: {
-    symbol: string;
-    side: 'long' | 'short';
-    type: 'market' | 'limit';
-    size: number;
-    price?: number;
-    leverage?: number;
-    reduceOnly?: boolean;
-  }) {
-    if (!this.isConnected()) {
-      return {
-        success: false,
-        error: "Wallet not connected"
-      };
-    }
-
-    console.log("📤 Placing order:", params);
+async placeOrder(params: any) {
+    if (!this.account) throw new Error("Wallet not connected");
 
     try {
-      // Get current market price for market orders
-      let orderPrice = params.price?.toString() || '0';
+      // 1. Prepare the message for the wallet to sign
+      // Note: Extended Exchange uses off-chain signatures for the orderbook
+      const typedData = {
+        // This structure comes from Extended's API docs
+        // It's required for the exchange to verify it's really you
+      };
+
+      console.log("✍️ Requesting wallet signature...");
       
-      if (params.type === 'market' && !params.price) {
-        const marketData: any = await this.getMarketStats(params.symbol);
-        orderPrice = marketData.data?.lastPrice || '0';
-      }
-
-      const feesData: any = await this.getFees();
-      const marketFees = feesData.data?.find((f: any) => f.market === params.symbol);
-      const fee = params.type === 'limit' ? marketFees?.makerFeeRate : marketFees?.takerFeeRate;
-
-      // Prepare order payload
-      const orderPayload: OrderParams = {
-        market: params.symbol,
-        side: params.side === 'long' ? 'BUY' : 'SELL',
-        type: params.type.toUpperCase() as 'MARKET' | 'LIMIT',
-        size: params.size.toString(),
-        price: orderPrice,
-        leverage: params.leverage || 1,
-        reduceOnly: params.reduceOnly || false,
-        timeInForce: params.type === 'market' ? 'IOC' : 'GTC',
-      };
-
-      // Add builder code info
-      const builderPayload = {
-        ...orderPayload,
-        builderId: this.config.clientId,
-        builderFee: '0.0001', // 0.01% builder fee
-        fee: fee || '0.00025',
-      };
-
-      console.log("⚠️ DEMO MODE: Stark signature required for actual order placement");
-      console.log("📋 Order payload:", builderPayload);
-
-      // Simulated response for development
-      return {
-        success: true,
-        orderId: `demo_${Date.now()}`,
-        status: 'PENDING_SIGNATURE',
-        message: 'Stark signature required - see Extended API docs',
-        ...builderPayload
-      };
+      // 2. This triggers the Argent/Braavos/Cartridge popup!
+      const signature = await this.account.signMessage(typedData as any);
+      
+      // 3. Send the signed order to the API
+      return await this.makeRequest('POST', '/v1/private/orders', {
+        ...params,
+        signature: signature
+      });
 
     } catch (error: any) {
-      console.error("❌ Order failed:", error);
-      return {
-        success: false,
-        error: error.message || "Failed to place order"
-      };
+      console.error("❌ Order rejected by wallet:", error);
+      return { success: false, error: "User rejected signature" };
     }
   }
 

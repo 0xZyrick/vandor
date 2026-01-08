@@ -5,6 +5,7 @@ import { useAccount } from '@starknet-react/core';
 import { initializeExtendedService, getExtendedService } from '../services/ExtendedExchangeService';
 
 
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 
@@ -119,6 +120,7 @@ export function ExtendedExchangeProvider({ children }: { children: ReactNode }) 
         starkPrivateKey: starkKey || '',
         clientId: clientId || '',
         vaultNumber: parseInt(vaultNumber || '0'),
+        network: 'sepolia',
       });
       
       setIsInitialized(true);

@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TrendingUp, Zap, Shield, ArrowRight } from 'lucide-react';
-import ConnectModal from '../components/ConnectWallet';
 import { useAccount } from '@starknet-react/core';
 import { useEffect } from 'react';
 
@@ -91,11 +90,6 @@ export default function LandingPage() {
           </div>
         </div>
       </div>
-
-      {/* Connect Modal */}
-      {showConnectModal && (
-        <ConnectModal onClose={() => setShowConnectModal(false)} />
-      )}
     </div>
   );
 }

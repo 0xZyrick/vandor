@@ -3,7 +3,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://api.starknet.extended.exchange/api/:path*"
+      "destination": "https://api-testnet.starknet.extended.exchange/api/:path*"
     }
   ],
   "headers": [
