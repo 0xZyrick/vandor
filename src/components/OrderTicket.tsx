@@ -135,7 +135,7 @@ export default function OrderTicket({ symbol, currentPrice }: OrderTicketProps) 
   };
 
   return (
-    <div className="w-full h-full flex flex-col bg-gray-900/25 rounded-2xl border border-gray-900/25 shadow-2xl overflow-hidden m-4">
+    <div className="w-96 flex flex-col bg-gray-900/25 rounded-2xl border border-gray-900/25 shadow-2xl overflow-y-auto m-4">
       
       {/* Fixed Header */}
       <div className="shrink-0 border-b border-gray-900 flex justify-between">

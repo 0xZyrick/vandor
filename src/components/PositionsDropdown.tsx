@@ -1,26 +1,48 @@
-'use client';
 import { useState } from 'react';
-import { X , LayersPlus, ArrowUpRight } from 'lucide-react';
+import { X, LayersPlus, ArrowUpRight, Loader2, TrendingUp, TrendingDown } from 'lucide-react';
+import { useExtendedExchange } from '../contexts/ExtendedExchangeContext';
+import { useNavigate } from 'react-router-dom';
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 export default function PositionsDropdown() {
   const [isOpen, setIsOpen] = useState(false);
-
-  // Fake data - later real from wallet
-  const positions = [
-    {
-      side: 'Long',
-      pair: 'SOL/USDT',
-      size: '5.2 SOL',
-      leverage: '10x',
-      entry: '129.58',
-      mark: '132.45',
-      liq: '110.20',
-      pnl: '+148.72',
-      pnlPercent: '+22.8%',
-    },
-  ];
+  const [closingPositionId, setClosingPositionId] = useState<string | null>(null);
+  const navigate = useNavigate();
+  
+  const { 
+    positions, 
+    loadingPositions, 
+    closePosition 
+  } = useExtendedExchange();
 
   const hasPositions = positions.length > 0;
+
+  // Handle close position
+  const handleClosePosition = async (position: any) => {
+    if (!confirm(`Close ${position.side} ${position.symbol}?`)) {
+      return;
+    }
+
+    setClosingPositionId(position.id);
+
+    try {
+      const result = await closePosition({
+        symbol: position.symbol,
+        side: position.side,
+      });
+
+      if (result.success) {
+        alert('✅ Position closed!');
+      } else {
+        alert(`❌ Failed: ${result.error}`);
+      }
+    } catch (error: any) {
+      alert(`Error: ${error.message}`);
+    } finally {
+      setClosingPositionId(null);
+    }
+  };
 
   return (
     <div className="xl:hidden">
@@ -41,18 +63,18 @@ export default function PositionsDropdown() {
         <>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 z-40"
+            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
             onClick={() => setIsOpen(false)}
           />
 
           {/* Panel */}
-          <div className="absolute right-0 top-14 w-80 bg-gray-900 rounded-2xl shadow-2xl border border-gray-800 z-50 overflow-hidden">
+          <div className="absolute right-0 top-14 w-80 bg-[#0d0d12] rounded-2xl shadow-2xl border border-gray-800 z-50 overflow-hidden">
             {/* Header */}
             <div className="flex justify-between items-center p-4 border-b border-gray-800">
               <h3 className="font-bold text-lg">Open Positions</h3>
               <button
                 onClick={() => setIsOpen(false)}
-                className="text-gray-400 hover:text-white text-xl"
+                className="text-gray-400 hover:text-white"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -60,53 +82,97 @@ export default function PositionsDropdown() {
 
             {/* Positions List */}
             <div className="max-h-96 overflow-y-auto">
-              {positions.map((pos, i) => (
-                <div key={i} className="p-4 border-b border-gray-800 last:border-0">
-                  <div className="flex justify-between items-start mb-3">
-                    <div>
-                      <div className="font-bold text-lg">
-                        {pos.side} {pos.pair}
-                      </div>
-                      <div className="text-sm text-gray-400">
-                        {pos.leverage} • {pos.size}
-                      </div>
-                    </div>
-                    <button className="text-red-400 font-medium hover:text-red-300">
-                      Close
-                    </button>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div>
-                      <div className="text-gray-400">Entry Price</div>
-                      <div className="font-medium">${pos.entry}</div>
-                    </div>
-                    <div>
-                      <div className="text-gray-400">Mark Price</div>
-                      <div className="font-medium">${pos.mark}</div>
-                    </div>
-                    <div>
-                      <div className="text-gray-400">Liq. Price</div>
-                      <div className="font-medium">${pos.liq}</div>
-                    </div>
-                    <div>
-                      <div className="text-gray-400">Unrealized PnL</div>
-                      <div className="font-bold text-green-400">
-                        ${pos.pnl} ({pos.pnlPercent})
-                      </div>
-                    </div>
-                  </div>
+              {loadingPositions && positions.length === 0 ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="w-6 h-6 animate-spin text-blue-500" />
                 </div>
-              ))}
+              ) : positions.length === 0 ? (
+                <div className="text-center py-12 px-4">
+                  <LayersPlus className="w-12 h-12 text-gray-700 mx-auto mb-3" />
+                  <p className="text-gray-500 text-sm">No open positions</p>
+                  <p className="text-gray-600 text-xs mt-1">Start trading to see positions here</p>
+                </div>
+              ) : (
+                positions.map((pos) => {
+                  const isProfit = pos.unrealizedPnl >= 0;
+                  const pnlPercent = (pos.unrealizedPnl / (pos.size * pos.entryPrice)) * 100;
+                  const isLong = pos.side === 'long';
+                  const isClosing = closingPositionId === pos.id;
+
+                  return (
+                    <div key={pos.id} className="p-4 border-b border-gray-800 last:border-0">
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <div className="font-bold text-base flex items-center gap-2">
+                            {pos.symbol}
+                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                              isLong 
+                                ? 'bg-green-500/20 text-green-400' 
+                                : 'bg-red-500/20 text-red-400'
+                            }`}>
+                              {isLong ? 'LONG' : 'SHORT'}
+                            </span>
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            {pos.leverage}x • ${(pos.size * pos.entryPrice).toFixed(2)}
+                          </div>
+                        </div>
+                        <button 
+                          onClick={() => handleClosePosition(pos)}
+                          disabled={isClosing}
+                          className="text-red-400 text-xs font-semibold hover:text-red-300 px-3 py-1 bg-red-500/10 rounded-lg border border-red-500/30 disabled:opacity-50"
+                        >
+                          {isClosing ? 'Closing...' : 'Close'}
+                        </button>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3 text-xs">
+                        <div>
+                          <div className="text-gray-500">Entry Price</div>
+                          <div className="font-mono font-semibold">${pos.entryPrice.toFixed(2)}</div>
+                        </div>
+                        <div>
+                          <div className="text-gray-500">Mark Price</div>
+                          <div className="font-mono font-semibold">${pos.markPrice.toFixed(2)}</div>
+                        </div>
+                        <div>
+                          <div className="text-gray-500">Liq. Price</div>
+                          <div className="font-mono font-semibold text-red-400">${pos.liquidationPrice.toFixed(2)}</div>
+                        </div>
+                        <div>
+                          <div className="text-gray-500">Unrealized PnL</div>
+                          <div className={`font-mono font-bold flex items-center gap-1 ${
+                            isProfit ? 'text-green-400' : 'text-red-400'
+                          }`}>
+                            {isProfit ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                            ${pos.unrealizedPnl.toFixed(2)}
+                            <span className="text-[10px]">
+                              ({isProfit ? '+' : ''}{pnlPercent.toFixed(1)}%)
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
             </div>
 
             {/* Footer */}
-            <div className="p-4 border-t border-gray-800">
-              <button className="w-full text-center text-green-400 font-medium hover:text-green-300 flex items-center justify-center space-x-1">
-              <span>View all positions</span>
-              <ArrowUpRight className="w-4 h-4" />
-            </button>
-            </div>
+            {hasPositions && (
+              <div className="p-4 border-t border-gray-800">
+                <button 
+                  onClick={() => {
+                    navigate('/portfolio');
+                    setIsOpen(false);
+                  }}
+                  className="w-full text-center text-blue-400 font-semibold hover:text-blue-300 flex items-center justify-center gap-2 text-sm"
+                >
+                  <span>View Full Portfolio</span>
+                  <ArrowUpRight className="w-4 h-4" />
+                </button>
+              </div>
+            )}
           </div>
         </>
       )}

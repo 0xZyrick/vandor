@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { Search, PanelRightClose, PanelRightOpen, TrendingUp, TrendingDown, RefreshCw, AlertCircle, ArrowUpDown, BookOpen } from "lucide-react";
+import { Search, PanelRightClose, PanelRightOpen, TrendingUp, TrendingDown, RefreshCw, AlertCircle, BookOpen, ChevronDown, ArrowDown } from "lucide-react";
 import OrderTicket from "../components/OrderTicket";
 import BottomNav from "../components/BottomNav";
 import OrderbookAndTrades from "../components/OrderbookAndTrades";
 import { TokenIcon } from '@token-icons/react';
+import PositionsListCompact from "../components/PositionsListCompact";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */  
 
@@ -47,11 +48,7 @@ const formatPercent = (val: any): string => {
 };
 
 const fetchLiveMarkets = async (): Promise<Market[]> => {
-  const apiUrl = import.meta.env.DEV 
-    ? '/api/v1/info/markets' 
-    : 'https://api.starknet.extended.exchange/api/v1/info/markets';
-  
-  const response = await fetch(apiUrl);
+  const response = await fetch('/api/v1/info/markets');
   
   if (!response.ok) {
     throw new Error(`API Error: ${response.status}`);
@@ -128,10 +125,10 @@ const MarketSidebar = ({
     <>
       <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-40" onClick={onClose} />
       
-      <div className="fixed top-0 left-0 h-full w-340px bg-[#0a0a0f] border-r border-gray-800 z-50 shadow-2xl flex flex-col">
+      <div className="fixed top-0 left-0 h-full w-80 bg-[#0a0a0f] border-r border-gray-800 z-50 shadow-2xl flex flex-col">
         <div className="p-6 border-b border-gray-900 flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-lg bg-linear-to-tr from-blue-400 to-purple-500 bg-clip-text text-transparent">
+            <span className="font-bold text-lg bg-linear-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
               MARKETS
             </span>
             {isRefreshing && <RefreshCw className="w-4 h-4 text-blue-500 animate-spin" />}
@@ -159,7 +156,6 @@ const MarketSidebar = ({
               const symbol = market.symbol.split('-')[0].toUpperCase();
 
               return (
-              <div>
                 <div
                   key={market.symbol}
                   onClick={() => { onSelectMarket(market.symbol); onClose(); }}
@@ -169,7 +165,8 @@ const MarketSidebar = ({
                       : 'hover:bg-white/5 border border-transparent hover:border-gray-800'
                   }`}
                 >
-                    <div className="w-9 h-9 rounded-full bg-gray-800 flex items-center justify-center shrink-0 border border-white/10 group-hover:border-blue-500/50 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-full bg-gray-800 flex items-center justify-center shrink-0 border border-white/10 hover:border-blue-500/50 transition-colors">
                       <TokenIcon 
                         symbol={symbol} 
                         size={24} 
@@ -231,6 +228,10 @@ export default function TradePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [mobileView, setMobileView] = useState<'chart' | 'orderbook'>('chart');
+  const [showScrollButton, setShowScrollButton] = useState(true);
+  
+  const orderTicketRef = useRef<HTMLDivElement>(null);
 
   // Convert URL slug to symbol format
   const slugToSymbol = (slug: string): string => {
@@ -253,13 +254,13 @@ export default function TradePage() {
     }
   };
 
-    const loadSavedMarket = (): string | null => {
-      try {
-        return localStorage.getItem('vello_current_market');
-      } catch {
-        return null;
-      }
-    };
+  const loadSavedMarket = (): string | null => {
+    try {
+      return localStorage.getItem('vello_current_market');
+    } catch {
+      return null;
+    }
+  };
 
   const loadMarkets = async (showRefreshing = false) => {
     if (showRefreshing) {
@@ -299,6 +300,26 @@ export default function TradePage() {
       setLoading(false);
       setIsRefreshing(false);
     }
+  };
+
+  // Scroll detection for mobile button
+  useEffect(() => {
+    const handleScroll = () => {
+      if (orderTicketRef.current) {
+        const rect = orderTicketRef.current.getBoundingClientRect();
+        const isOrderTicketVisible = rect.top < window.innerHeight && rect.bottom >= 0;
+        setShowScrollButton(!isOrderTicketVisible);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    handleScroll(); // Initial check
+    
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToTrade = () => {
+    orderTicketRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   useEffect(() => {
@@ -383,7 +404,6 @@ export default function TradePage() {
                   }`}>
                     {formatPercent(currentMarket?.priceChangePercent)}
                   </span>
-                  {isRefreshing }
                 </div>
                 <div className="flex items-center gap-2 mt-1">
                   <span className={`text-2xl font-bold font-mono ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
@@ -453,7 +473,7 @@ export default function TradePage() {
             
             <div className="flex-1 flex flex-col">
               {/* Chart */}
-              <div className="flex-1 relative bg-[#0a0a0f] m-4 rounded-xl h-full border border-gray-800">
+              <div className="flex-1 relative bg-[#0a0a0f] m-4 rounded-xl border border-gray-800">
                 
                 <button
                   onClick={() => setIsOrderbookOpen(!isOrderbookOpen)}
@@ -468,21 +488,20 @@ export default function TradePage() {
                 <iframe
                   key={currentSymbol}
                   src={`https://s.tradingview.com/widgetembed/?frameElementId=tradingview_chart&symbol=BINANCE:${currentSymbol.replace('-USD', 'USDT')}&interval=D&hidesidetoolbar=0&symboledit=1&saveimage=1&toolbarbg=0a0a0f&studies=[]&theme=dark&style=1&timezone=Etc%2FUTC&withdateranges=1&studies_overrides={}&overrides={}&enabled_features=[]&disabled_features=[]&locale=en`}
-                  className="absolute inset-0 w-full h-full"
+                  className="absolute inset-0 w-full h-full rounded-xl"
                   title="TradingView Chart"
                 />
               </div>
               
-              <div className="flex-col border-t border-gray-900 bg-[#0a0a0f] hidden xl:flex">
+              <div className="flex-col border-t border-gray-900 bg-[#0a0a0f] hidden xl:flex max-h-80">
                 <div className="flex gap-6 px-6 py-3 border-b border-gray-900">
                   <button className="text-sm font-semibold pb-2 border-b-2 border-blue-500">Positions</button>
                   <button className="text-sm font-semibold pb-2 text-gray-600 hover:text-gray-400 transition">Orders</button>
                   <button className="text-sm font-semibold pb-2 text-gray-600 hover:text-gray-400 transition">History</button>
                 </div>
                 
-                <div className="flex flex-col items-center justify-center h-32 text-gray-600">
-                  <ArrowUpDown className="w-8 h-8 mb-2 opacity-50" />
-                  <span className="text-sm">No active positions</span>
+                <div className="overflow-y-auto px-6 py-4">
+                  <PositionsListCompact />
                 </div>
               </div>
             </div>
@@ -496,7 +515,7 @@ export default function TradePage() {
               </div>
             )}
 
-            <aside className="w-full h-full">
+            <aside className="w-96 p-6 overflow-y-auto">
               <OrderTicket 
                 symbol={currentSymbol} 
                 currentPrice={currentMarket?.lastPrice}
@@ -505,30 +524,45 @@ export default function TradePage() {
           </div>
 
           {/* MOBILE LAYOUT */}
-          <div className="xl:hidden flex flex-col w-full overflow-y-auto pb-20">
-            
-            <div className="relative h-[60vh] bg-[#0a0a0f] border-b border-gray-800">
-              
-              <div className="absolute top-4 right-4 z-10">
-                <select
-                  value={isOrderbookOpen ? 'orderbook' : ''}
-                  onChange={(e) => setIsOrderbookOpen(e.target.value === 'orderbook')}
-                  className="bg-gray-900/90 border border-gray-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
-                >
-                  <option value="">Chart View</option>
-                  <option value="orderbook">Order Book & Trades</option>
-                </select>
-              </div>
-              
-              <iframe
-                key={currentSymbol}
-                src={`https://s.tradingview.com/widgetembed/?frameElementId=tradingview_chart&symbol=BINANCE:${currentSymbol.replace('-USD', 'USDT')}&interval=D&hidesidetoolbar=0&symboledit=1&saveimage=1&toolbarbg=0a0a0f&studies=[]&theme=dark&style=1&timezone=Etc%2FUTC&withdateranges=1&studies_overrides={}&overrides={}&enabled_features=[]&disabled_features=[]&locale=en`}
-                className="w-full h-full"
-                title="TradingView Chart"
-              />
-            </div>
+          <div className="xl:hidden flex-1 flex flex-col overflow-y-auto pb-20">
 
-            <div className="bg-[#0a0a0f]">
+            {/* Mobile View Switcher */}
+            <div className="sticky top-0 z-10 bg-[#0a0a0f] border-b border-gray-800 px-4 py-3">
+              <div className="relative">
+                <select
+                  value={mobileView}
+                  onChange={(e) => setMobileView(e.target.value as 'chart' | 'orderbook')}
+                  className="w-full appearance-none bg-gray-900 border border-gray-800 rounded-lg px-4 py-3 pr-10 text-sm font-semibold focus:outline-none focus:border-blue-500 cursor-pointer"
+                >
+                  <option value="chart">📈 Chart View</option>
+                  <option value="orderbook">📊 Order Book & Trades</option>
+                </select>
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none" />
+              </div>
+            </div>
+            
+            {/* Chart or Orderbook View */}
+            {mobileView === 'chart' ? (
+              <div className="relative h-[60vh] bg-[#0a0a0f] border-b border-gray-800">
+                <iframe
+                  key={currentSymbol}
+                  src={`https://s.tradingview.com/widgetembed/?frameElementId=tradingview_chart&symbol=BINANCE:${currentSymbol.replace('-USD', 'USDT')}&interval=D&hidesidetoolbar=0&symboledit=1&saveimage=1&toolbarbg=0a0a0f&studies=[]&theme=dark&style=1&timezone=Etc%2FUTC&withdateranges=1&studies_overrides={}&overrides={}&enabled_features=[]&disabled_features=[]&locale=en`}
+                  className="w-full h-full"
+                  title="TradingView Chart"
+                />
+              </div>
+            ) : (
+              <div className="h-[60vh] bg-[#0a0a0f] border-b border-gray-800 overflow-hidden">
+                <OrderbookAndTrades 
+                  symbol={currentSymbol}
+                  onClose={() => setMobileView('chart')}
+                  isMobile={true}
+                />
+              </div>
+            )}
+
+            {/* Order Ticket */}
+            <div ref={orderTicketRef} className="bg-[#0a0a0f]">
               <OrderTicket 
                 symbol={currentSymbol} 
                 currentPrice={currentMarket?.lastPrice}
@@ -547,16 +581,15 @@ export default function TradePage() {
           />
         )}
 
-        {isOrderbookOpen && (
-          <div className="xl:hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50">
-            <div className="w-full h-60vh bg-[#0a0a0f]">
-              <OrderbookAndTrades 
-                symbol={currentSymbol}
-                onClose={() => setIsOrderbookOpen(false)}
-                isMobile={true}
-              />
-            </div>
-          </div>
+        {/* Scroll to Trade Button (Mobile Only) */}
+        {showScrollButton && (
+          <button 
+            onClick={scrollToTrade}
+            className="xl:hidden fixed bottom-24 left-1/2 -translate-x-1/2 bg-linear-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold px-8 py-3 rounded-full shadow-lg z-50 flex items-center gap-2 transition-all animate-bounce"
+          >
+            <span>Scroll to Trade</span>
+            <ArrowDown className="w-4 h-4" />
+          </button>
         )}
       </div>
 

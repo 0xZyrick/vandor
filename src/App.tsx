@@ -3,6 +3,7 @@ import MarketsPage from './pages/MarketsPage';
 import TradePage from './pages/TradePage';
 import BottomNav from './components/BottomNav';
 import Header from './components/Header';
+import PortfolioPage from "./pages/PortfolioPage"
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
           <Route path="/" element={<MarketsPage />} />
           <Route path="/markets" element={<MarketsPage />} />
           <Route path="/:pairSlug" element={<TradePage />} />
+          <Route path="/portfolio" element={<PortfolioPage />} />
         </Routes>
       </main>
 

@@ -6,8 +6,8 @@ export default function BottomNav() {
 
   const tabs = [
     { name: 'Markets', path: '/markets', icon: <LayoutGrid className="w-4 h-4" /> },
-    { name: 'Trade', path: '/solusdc', icon: <BarChart3 className="w-4 h-4" /> },
-    { name: 'Account', path: '/account', icon: <User className="w-4 h-4" /> },
+    { name: 'Trade', path: '/btcusdc', icon: <BarChart3 className="w-4 h-4" /> },
+    { name: 'Portfolio', path: '/portfolio', icon: <User className="w-4 h-4" /> },
   ];
   const getActiveState = (path: string) => {
     const current = location.pathname;
