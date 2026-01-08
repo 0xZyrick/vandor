@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useConnect, useAccount, useDisconnect, useBalance } from "@starknet-react/core";
+import { Link, useLocation } from 'react-router-dom';
 import PositionsDropdown from "../components/PositionsDropdown";
 import { Menu, Settings, LogOut, HelpCircle, User, X, Wallet, Mail, CheckCircle } from "lucide-react";
 import SideMenu from "./SideMenu";
-import { connect as starknetKitConnect } from "starknetkit";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -12,6 +12,8 @@ export default function Header() {
   const { address, isConnected, connector } = useAccount();
   const { disconnect } = useDisconnect();
   const { data: balance } = useBalance({ address });
+  const location = useLocation();
+  
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showProfilePopup, setShowProfilePopup] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -20,7 +22,6 @@ export default function Header() {
 
   const getWalletType = () => {
     if (!connector) return 'Wallet';
-    // Cartridge often identifies as 'controller'
     if (connector.id.toLowerCase().includes('cartridge') || connector.id.toLowerCase().includes('controller')) {
        return 'Cartridge';
     }
@@ -29,10 +30,8 @@ export default function Header() {
     return connector.name || 'Wallet';
   };
 
-  // Show welcome toast on connection
   useEffect(() => {
     if (isConnected && connectionStatus === 'connecting') {
-      // Use timeout to avoid synchronous setState in effect
       const timer = setTimeout(() => {
         setConnectionStatus('success');
         setShowWelcomeToast(true);
@@ -49,29 +48,25 @@ export default function Header() {
     }
   }, [isConnected, connectionStatus]);
 
-  const handleConnect = async (selectedConnector?: any) => {
-  setConnectionStatus('connecting');
-  
-  try {
-    // If a specific connector was clicked (like Cartridge or Argent)
-    if (selectedConnector) {
-      await connect({ connector: selectedConnector });
-    } else {
-      // SMART MOBILE FALLBACK: If they just click "Connect" 
-      // This opens the professional StarknetKit modal (perfect for mobile)
-      const { connector } = await starknetKitConnect({
-        connectors: connectors as any,
-        dappName: "Vandor",
-      });
-      if (connector) await connect({ connector });
-    }
-    
-    setShowLoginModal(false);
-  } catch (error) {
-    console.error('Connection failed:', error);
-    setConnectionStatus('error');
+    // Hide header on landing page
+  if (location.pathname === '/') {
+    return null;
   }
-};
+
+  const handleConnect = async (selectedConnector: any) => {
+    setConnectionStatus('connecting');
+    
+    try {
+      console.log('🔌 Connecting with:', selectedConnector.id);
+      await connect({ connector: selectedConnector });
+      setShowLoginModal(false);
+      setConnectionStatus('success');
+    } catch (error: any) {
+      console.error('❌ Connection failed:', error);
+      setConnectionStatus('error');
+      setTimeout(() => setConnectionStatus('idle'), 2000);
+    }
+  };
 
   const handleDisconnect = () => {
     disconnect();
@@ -79,17 +74,19 @@ export default function Header() {
     setConnectionStatus('idle');
   };
 
-  // Group connectors by type
-  const cartridgeConnector = connectors.find(c => c.id.includes('cartridge'));
-  const walletConnectors = connectors.filter(c => !c.id.includes('cartridge'));
+  const cartridgeConnector = connectors.find(c => 
+    c.id.toLowerCase().includes('cartridge') || c.id.toLowerCase().includes('controller')
+  );
+  const walletConnectors = connectors.filter(c => 
+    !c.id.toLowerCase().includes('cartridge') && !c.id.toLowerCase().includes('controller')
+  );
 
   return (
     <>
       <SideMenu isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
-      {/* Welcome Toast */}
       {showWelcomeToast && (
-        <div className="fixed top-20 right-6 z-100 animate-in slide-in-from-top-5 duration-3000">
+        <div className="fixed top-20 right-6 z-100 animate-in slide-in-from-top-5 duration-300">
           <div className="bg-linear-to-r from-green-500/10 to-emerald-500/10 border border-green-500/30 rounded-2xl p-4 shadow-2xl backdrop-blur-xl flex items-center gap-3 min-w-300px">
             <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center shrink-0">
               <CheckCircle className="w-5 h-5 text-white" />
@@ -107,17 +104,25 @@ export default function Header() {
           <button onClick={() => setIsSidebarOpen(true)} className="xl:hidden">
             <Menu className="h-6 w-6 text-gray-400 hover:text-white" />
           </button>
-          <img src="/vandar.svg" alt="Vandor" className="h-8" />
+          <Link to="/markets">
+            <img src="/vandar.svg" alt="Vandor" className="h-8" />
+          </Link>
         </div>
 
-        {/* Center Section: Navigation */}
         <div className="hidden xl:flex">
           <nav className="flex items-center space-x-7">
-            <a href="/markets" className="text-[16px] font-medium text-gray-400 hover:text-white transition">Markets</a>
-            <a href="/btcusdc" className="text-[16px] font-medium text-gray-400 hover:text-white transition">Trade</a>
-            <a href="/portfolio" className="text-[16px] font-medium text-gray-400 hover:text-white transition">Portfolio</a>
-            <a href="/leaderboard" className="text-[16px] font-medium text-gray-800 hover:text-white transition p-0.5">Leaderboard<span className="text-xs text-white bg-blue-800 p-0.5 rounded">coming soon</span></a>
-            <a href="/docs" className="text-[16px] font-medium text-gray-400 hover:text-white transition">Docs</a>
+            <Link to="/markets" className="text-[16px] font-medium text-gray-400 hover:text-white transition">
+              Markets
+            </Link>
+            <Link to="/trade" className="text-[16px] font-medium text-gray-400 hover:text-white transition">
+              Trade
+            </Link>
+            <Link to="/portfolio" className="text-[16px] font-medium text-gray-400 hover:text-white transition">
+              Portfolio
+            </Link>
+            <Link to="/docs" className="text-[16px] font-medium text-gray-400 hover:text-white transition">
+              Docs
+            </Link>
           </nav>
         </div>
 
@@ -143,7 +148,7 @@ export default function Header() {
                 </button>
 
                 {showProfilePopup && (
-                  <div className="absolute right-0 mt-3 w-72 bg-[#0d0d12] border border-gray-800 rounded-3xl shadow-2xl p-5 z-50 animate-in fade-in zoom-in duration-200">
+                  <div className="absolute right-0 mt-3 w-72 bg-[#0d0d12] border border-gray-800 rounded-3xl shadow-2xl p-5 z-50">
                     <div className="flex justify-between items-start mb-6">
                       <div>
                         <p className="text-xs text-gray-500 mb-1">Total Balance</p>
@@ -180,21 +185,20 @@ export default function Header() {
                 onClick={() => setShowLoginModal(true)}
                 className="px-4 py-2.5 bg-blue-500 text-black font-black rounded-full hover:bg-white transition uppercase text-xs tracking-wide"
               >
-                {connectionStatus === 'connecting' ? 'Connecting...' : 'log in'}
+                {connectionStatus === 'connecting' ? 'Connecting...' : 'Connect'}
               </button>
             )}
           </div>
         </div>
       </header>
 
-      {/* LOGIN SELECTION MODAL */}
       {showLoginModal && (
         <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/80 backdrop-blur-md px-4">
           <div className="bg-[#0d0d12] border border-gray-800 p-8 rounded-[40px] w-full max-w-md shadow-2xl">
             <div className="flex justify-between items-center mb-6">
               <div>
                 <h2 className="text-2xl font-bold tracking-tight">Connect to Vandor</h2>
-                <p className="text-gray-500 text-sm mt-1">Choose your preferred sign-in method</p>
+                <p className="text-gray-500 text-sm mt-1">Choose your sign-in method</p>
               </div>
               <button 
                 onClick={() => setShowLoginModal(false)} 
@@ -205,40 +209,38 @@ export default function Header() {
             </div>
             
             <div className="flex flex-col gap-3">
-              {/* Cartridge Controller (Email/Username) */}
               {cartridgeConnector && (
                 <>
                   <button
                     onClick={() => handleConnect(cartridgeConnector)}
                     disabled={connectionStatus === 'connecting'}
-                    className="w-full py-5 bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 border-2 border-blue-500/50 rounded-2xl font-bold transition flex items-center px-6 gap-4 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full py-5 bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 border-2 border-blue-500/50 rounded-2xl font-bold transition flex items-center px-6 gap-4 disabled:opacity-50"
                   >
                     <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center">
                       <Mail className="w-6 h-6 text-white" />
                     </div>
                     <div className="text-left flex-1">
                       <p className="text-base font-bold text-white">Email / Username</p>
-                      <p className="text-[11px] text-blue-200">No seed phrase • Account Abstraction</p>
+                      <p className="text-[11px] text-blue-200">Cartridge Controller • No seed phrase</p>
                     </div>
                   </button>
 
                   <div className="flex items-center gap-3 my-2">
                     <div className="flex-1 h-px bg-gray-800"></div>
-                    <span className="text-xs text-gray-600 uppercase font-semibold">Or use wallet</span>
+                    <span className="text-xs text-gray-600 uppercase font-semibold">Or connect wallet</span>
                     <div className="flex-1 h-px bg-gray-800"></div>
                   </div>
                 </>
               )}
 
-              {/* Browser Wallets */}
               {walletConnectors.map((connector) => (
                 <button
                   key={connector.id}
                   onClick={() => handleConnect(connector)}
                   disabled={connectionStatus === 'connecting'}
-                  className="w-full py-4 bg-gray-900 hover:bg-gray-800 border border-gray-800 hover:border-gray-700 rounded-2xl font-bold transition flex items-center px-6 gap-4 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full py-4 bg-gray-900 hover:bg-gray-800 border border-gray-800 rounded-2xl font-bold transition flex items-center px-6 gap-4 disabled:opacity-50"
                 >
-                  <div className="w-10 h-10 rounded-xl bg-gray-800 flex items-center justify-center overflow-hidden">
+                  <div className="w-10 h-10 rounded-xl bg-gray-800 flex items-center justify-center">
                     {connector.icon ? (
                       <img 
                         src={typeof connector.icon === 'string' ? connector.icon : connector.icon.dark} 

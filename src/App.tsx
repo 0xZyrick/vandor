@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import MarketsPage from './pages/MarketsPage';
 import TradePage from './pages/TradePage';
 import BottomNav from './components/BottomNav';
@@ -13,23 +13,32 @@ function App() {
 
       {/* Main Content */}
       <main className="pb-24 lg:pb-0">
-            <Routes>
-      {/* Landing Page */}
-      <Route path="/" element={<LandingPage />} />
-      
-      {/* Markets Page */}
-      <Route path="/markets" element={<MarketsPage />} />
-      
-      {/* Trade Page - accepts any pair slug */}
-      <Route path="/trade" element={<TradePage />} />
-      <Route path="/trade/:pairSlug" element={<TradePage />} />
-      
-      {/* Portfolio Page */}
-      <Route path="/portfolio" element={<PortfolioPage />} />
-      
-      {/* Fallback - redirect to landing */}
-      <Route path="*" element={<LandingPage />} />
-    </Routes>
+      <Routes>
+          {/* Landing Page */}
+          <Route path="/" element={<LandingPage />} />
+          
+          {/* Markets Page */}
+          <Route path="/markets" element={<MarketsPage />} />
+          
+          {/* Trade Page */}
+          <Route path="/trade" element={<Navigate to="/trade/btcusdc" replace />} />
+          <Route path="/trade/:pairSlug" element={<TradePage />} />
+          <Route path="/:pairSlug" element={<TradePage />} />
+          
+          {/* Portfolio Page */}
+          <Route path="/portfolio" element={<PortfolioPage />} />
+          
+          {/* Docs (placeholder) */}
+          <Route path="/docs" element={<div className="min-h-screen bg-[#050507] text-white flex items-center justify-center">
+            <div className="text-center">
+              <h1 className="text-4xl font-bold mb-4">Documentation</h1>
+              <p className="text-gray-400">Coming soon...</p>
+            </div>
+          </div>} />
+          
+          {/* Fallback */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       </main>
 
       <BottomNav />
