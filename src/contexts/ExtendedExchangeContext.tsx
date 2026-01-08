@@ -244,7 +244,7 @@ export function ExtendedExchangeProvider({ children }: { children: ReactNode }) 
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
-export function useExtended() {
+export function useExtendedExchange() {
   const context = useContext(ExtendedExchangeContext);
   
   if (context === undefined) {
