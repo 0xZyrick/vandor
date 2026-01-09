@@ -166,7 +166,7 @@ export default function OrderTicket({ symbol, currentPrice }: OrderTicketProps) 
       </div>
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 overflow-y-auto p-4 w-full">
         <div className="space-y-2">
         
         <div className="flex justify-between items-center">

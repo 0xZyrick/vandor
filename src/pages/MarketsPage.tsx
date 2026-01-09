@@ -154,7 +154,7 @@ const MarketListRow = ({ market, onClick }: { market: Market; onClick: () => voi
   return (
     <div 
       onClick={onClick} 
-      className="flex items-center gap-2 p-4 hover:bg-white/5 cursor-pointer transition-all border-b border-gray-900/50 group"
+      className="flex items-center gap-3 p-4 hover:bg-white/5 cursor-pointer transition-all border-b border-gray-900/50 group"
     >
     {/* icon */}
       <div className="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center shrink-0 border border-white/10 group-hover:border-blue-500/50 transition-colors">
@@ -166,8 +166,8 @@ const MarketListRow = ({ market, onClick }: { market: Market; onClick: () => voi
       </div>
 
       {/* Token Info */}
-      <div className="flex-1 gap-3 min-w-400px">
-        <div className="font-bold text-base">{market.symbol.replace('USDC', '/USDC').replace('USDT', '/USDT')}</div>
+      <div className="flex-1 gap-3 min-w-500px">
+        <div className="font-bold text-base w-full">{market.symbol.replace('USDC', '/USDC').replace('USDT', '/USDT')}</div>
         <div className="text-xs text-gray-500">Perpetual</div>
       </div>
 
@@ -175,7 +175,7 @@ const MarketListRow = ({ market, onClick }: { market: Market; onClick: () => voi
             {/* Price */}
           <div className="text-right min-w-100px">
             <div className="font-mono font-semibold">${formatNum(market.lastPrice)}</div>
-            <div className={`text-xs font-mono flex items-center justify-end gap-1 ${
+            <div className={`text-sm font-mono flex items-center justify-end gap-1 ${
               isPositive ? 'text-green-400' : 'text-red-400'
             }`}>
               {isPositive ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
@@ -186,19 +186,19 @@ const MarketListRow = ({ market, onClick }: { market: Market; onClick: () => voi
           {/* Volume */}
           <div className="text-right min-w-80px hidden md:block">
             <div className="text-xs text-gray-500 mb-1">24h Vol</div>
-            <div className="font-mono text-sm">{formatCompact(market.volume24h)}</div>
+            <div className="font-mono text-md">{formatCompact(market.volume24h)}</div>
           </div>
 
           {/* Open Interest */}
           <div className="text-right min-w-80px hidden lg:block">
             <div className="text-xs text-gray-500 mb-1">Open Interest</div>
-            <div className="font-mono text-sm">{formatCompact(market.openInterest)}</div>
+            <div className="font-mono text-md">{formatCompact(market.openInterest)}</div>
           </div>
 
           {/* Funding Rate */}
           <div className="text-right min-w-80px hidden lg:block">
             <div className="text-xs text-gray-500 mb-1">Funding</div>
-            <div className="font-mono text-sm text-yellow-400">
+            <div className="font-mono text-md text-yellow-400">
               {market.fundingRate ? (market.fundingRate * 100).toFixed(4) + '%' : '---'}
             </div>
           </div>
@@ -328,7 +328,7 @@ export default function MarketsPage() {
                 </h1>
               </div>
               <p className="text-gray-400 text-lg max-w-2xl">
-                Trade instantly with Vello. Backed by Extended Exchange and built on Starknet
+                Trade swiftly on vandor prep. Built on Extended Exchange.
               </p>
             </div>
 
@@ -380,7 +380,7 @@ export default function MarketsPage() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className=" border border-gray-800 rounded-xl px-6 py-4 focus:outline-none focus:border-gray-500 transition"
+              className=" border border-gray-800 bg-gray-900 rounded-xl px-6 py-4 focus:outline-none focus:border-gray-500 transition"
             >
               <option value="volume" >Sort by Volume</option>
               <option value="change" >Sort by Change</option>

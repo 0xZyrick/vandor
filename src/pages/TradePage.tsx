@@ -562,7 +562,7 @@ export default function TradePage() {
             )}
 
             {/* Order Ticket */}
-            <div ref={orderTicketRef} className="bg-[#0a0a0f] w-full">
+            <div ref={orderTicketRef} className="bg-[#0a0a0f] w-full px-4">
               <OrderTicket 
                 symbol={currentSymbol} 
                 currentPrice={currentMarket?.lastPrice}
