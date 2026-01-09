@@ -15,6 +15,10 @@ export default function BottomNav() {
     if (path === '/markets') {
       return current === '/' || current === '/markets';
     }
+
+    if (location.pathname === '/') {
+    return null;
+   }
     
     if (path === '/solusdc') {
       const navPaths = ['/markets', '/', '/dashboard', '/account'];

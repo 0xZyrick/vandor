@@ -3,6 +3,10 @@
     {
       "source": "/api/:path*",
       "destination": "https://api-testnet.extended.exchange/api/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }

@@ -44,13 +44,8 @@ const formatPercent = (val: any): string => {
 
 // API SERVICE
 const fetchLiveMarkets = async (): Promise<Market[]> => {
-  const apiUrl = import.meta.env.DEV 
-    ? '/api/v1/info/markets' 
-    : 'https://api.starknet.extended.exchange/api/v1/info/markets';
-  
-  console.log("🔍 Fetching from:", apiUrl);
-  
-  const response = await fetch(apiUrl);
+    
+  const response = await fetch('/api/v1/info/markets');
   
   if (!response.ok) {
     throw new Error(`API Error: ${response.status}`);

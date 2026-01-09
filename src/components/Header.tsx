@@ -120,6 +120,9 @@ export default function Header() {
             <Link to="/portfolio" className="text-[16px] font-medium text-gray-400 hover:text-white transition">
               Portfolio
             </Link>
+            <Link to="#" className="text-[16px] font-medium text-gray-400 hover:text-white transition">
+              Leaderboard
+            </Link>
             <Link to="/docs" className="text-[16px] font-medium text-gray-400 hover:text-white transition">
               Docs
             </Link>

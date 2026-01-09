@@ -30,7 +30,7 @@ export default function LandingPage() {
         
         {/* Logo */}
         <div className="mb-8 flex justify-center">
-          <img src="/vandar.svg" alt="Vandor" className="h-16" />
+          <img src="/logo.png" alt="Vandor" className="h-12" />
         </div>
 
         {/* Hero Text */}
@@ -63,8 +63,8 @@ export default function LandingPage() {
         </div>
 
         {/* Features */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
-          <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-6 backdrop-blur-sm">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+          <div className="bg-gray-900/50 border border-gray-800/25 rounded-2xl p-6 backdrop-blur-sm">
             <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center mb-4 mx-auto">
               <Zap className="w-6 h-6 text-blue-400" />
             </div>

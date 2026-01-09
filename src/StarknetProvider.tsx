@@ -19,12 +19,13 @@ export function StarknetProvider({ children }: { children: React.ReactNode }) {
       argent(),
       braavos(),
     ],
-    includeRecommended: "always",
+    includeRecommended: "onlyIfNoConnectors",
   });
 
   // Cartridge Controller for Sepolia testnet
   const controller = new ControllerConnector({
     rpcUrl: "https://api.cartridge.gg/x/starknet/sepolia",
+    policies: []
   }) as never as Connector;
 
   // Combine all connectors
@@ -33,13 +34,15 @@ export function StarknetProvider({ children }: { children: React.ReactNode }) {
     ...injectedConnectors
   ];
 
+    console.log('🔌 Available connectors:', allConnectors.map(c => c.id));
+
   return (
     <StarknetConfig
       chains={[sepolia]}
       provider={publicProvider()}
       connectors={allConnectors}
       explorer={voyager}
-      autoConnect
+      autoConnect={true}
     >
       {children}
     </StarknetConfig>
