@@ -135,7 +135,7 @@ export default function OrderTicket({ symbol, currentPrice }: OrderTicketProps) 
   };
 
   return (
-    <div className="w-96 flex flex-col bg-gray-900/25 rounded-2xl border border-gray-900/25 shadow-2xl overflow-y-auto p-4">
+    <div className="w-96 flex flex-col bg-[#0a0a0f] rounded-2xl border border-gray-900/25 shadow-2xl overflow-y-auto h-full p-1">
       
       {/* Fixed Header */}
       <div className="shrink-0 border-b border-gray-900 flex justify-between items-center">
@@ -162,7 +162,7 @@ export default function OrderTicket({ symbol, currentPrice }: OrderTicketProps) 
           </button>
         </div>
 
-        <Settings2 className="p-1 w-5 h-5 text-gray-500 cursor-pointer hover:text-white transition shrink-0 border border-gray-400/25" />
+        <Settings2 className="p-1 w-7 h-7 rounded-lg text-gray-500 cursor-pointer hover:text-white transition shrink-0 border border-gray-400/25" />
       </div>
 
       {/* Scrollable Content */}

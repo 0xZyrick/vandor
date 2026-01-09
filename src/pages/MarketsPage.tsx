@@ -157,7 +157,7 @@ const MarketListRow = ({ market, onClick }: { market: Market; onClick: () => voi
       className="flex items-center gap-2 p-4 hover:bg-white/5 cursor-pointer transition-all border-b border-gray-900/50 group"
     >
     {/* icon */}
-      <div className="w-10 h-10 rounded-full bg-linear-to-r from-blue-400 to-purple-500 flex items-center justify-center shrink-0 border border-white/10 group-hover:border-blue-500/50 transition-colors">
+      <div className="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center shrink-0 border border-white/10 group-hover:border-blue-500/50 transition-colors">
         <TokenIcon 
           symbol={symbol} 
           size={24} 
@@ -166,12 +166,12 @@ const MarketListRow = ({ market, onClick }: { market: Market; onClick: () => voi
       </div>
 
       {/* Token Info */}
-      <div className="flex-1 gap-3 min-w-150px">
+      <div className="flex-1 gap-3 min-w-400px">
         <div className="font-bold text-base">{market.symbol.replace('USDC', '/USDC').replace('USDT', '/USDT')}</div>
         <div className="text-xs text-gray-500">Perpetual</div>
       </div>
 
-      <div className="flex w-full justify-between">
+      <div className="flex w-full justify-around">
             {/* Price */}
           <div className="text-right min-w-100px">
             <div className="font-mono font-semibold">${formatNum(market.lastPrice)}</div>
@@ -373,18 +373,18 @@ export default function MarketsPage() {
                 placeholder="Search markets..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full bg-gray-900/50 rounded-xl pl-12 pr-4 py-3 focus:outline-none focus:border-blue-500 transition"
+                className="w-full bg-gray-900/50 rounded-xl pl-12 pr-4 py-4 focus:outline-none focus:border-blue-500 transition"
               />
             </div>
 
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="bg-gray-900 border border-gray-800 rounded-xl px-6 py-4 focus:outline-none focus:border-gray-500 transition"
+              className=" border border-gray-800 rounded-xl px-6 py-4 focus:outline-none focus:border-gray-500 transition"
             >
-              <option value="volume" className='rounded-md'>Sort by Volume</option>
-              <option value="change" className='rounded-md'>Sort by Change</option>
-              <option value="name"className='rounded-md'>Sort by Name</option>
+              <option value="volume" >Sort by Volume</option>
+              <option value="change" >Sort by Change</option>
+              <option value="name">Sort by Name</option>
             </select>
           </div>
 
