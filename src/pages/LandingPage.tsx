@@ -48,6 +48,7 @@ export default function LandingPage() {
         {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
           <button
+            onClick={() => navigate ('/trade')}
             className="px-8 py-4 bg-linear-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 rounded-full font-bold text-lg transition flex items-center justify-center gap-2 shadow-2xl shadow-blue-500/50"
           >
             Start Trading
