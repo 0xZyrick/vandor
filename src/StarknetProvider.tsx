@@ -19,7 +19,7 @@ export function StarknetProvider({ children }: { children: React.ReactNode }) {
       argent(),
       braavos(),
     ],
-    includeRecommended: "onlyIfNoConnectors",
+    includeRecommended: "always",
   });
 
   // Cartridge Controller for Sepolia testnet
