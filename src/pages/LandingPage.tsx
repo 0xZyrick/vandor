@@ -26,11 +26,11 @@ export default function LandingPage() {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 text-center px-6 max-w-4xl">
+      <div className="relative z-10 text-center px-6 py-10 max-w-4xl">
         
         {/* Logo */}
         <div className="mb-8 flex justify-center">
-          <img src="/logo.png" alt="Vandor" className="h-12" />
+          <img src="/logo.png" alt="Vandor" className="h-12 animate-bounce" />
         </div>
 
         {/* Hero Text */}

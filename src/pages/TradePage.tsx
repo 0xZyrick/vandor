@@ -585,7 +585,7 @@ export default function TradePage() {
         {showScrollButton && (
           <button 
             onClick={scrollToTrade}
-            className="xl:hidden fixed bottom-24 left-1/2 -translate-x-1/2 bg-linear-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold px-8 py-3 rounded-full shadow-lg z-50 flex items-center gap-2 transition-all animate-bounce"
+            className="xl:hidden fixed bottom-24 left-1/2 -translate-x-1/2 bg-linear-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold px-6 py-3 rounded-full shadow-lg z-50 flex items-center gap-2 transition-all animate-bounce"
           >
             <span>Scroll to Trade</span>
             <ArrowDown className="w-4 h-4" />
