@@ -1,12 +1,9 @@
-// src/contexts/ExtendedExchangeContext.tsx
-
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { useAccount } from '@starknet-react/core';
 import { initializeExtendedService, getExtendedService } from '../services/ExtendedExchangeService';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-// TYPES
 interface Position {
   id: string;
   symbol: string;
@@ -69,9 +66,6 @@ export function ExtendedExchangeProvider({ children }: { children: ReactNode }) 
   const [loadingOrders, setLoadingOrders] = useState(false);
   const [loadingBalance, setLoadingBalance] = useState(false);
 
-  // INITIALIZE SERVICE FOR TESTNET
-// src/contexts/ExtendedExchangeContext.tsx
-
 useEffect(() => {
   try {
     const apiKey = import.meta.env.VITE_EXTENDED_API_KEY || '';
@@ -84,7 +78,7 @@ useEffect(() => {
 
     initializeExtendedService({
       apiKey,
-      starkPrivateKey: '', // Not needed - wallet signs
+      starkPrivateKey: '',
       clientId: 'VANDOR_MAINNET',
       vaultNumber,
       network,
@@ -177,7 +171,6 @@ useEffect(() => {
     ]);
   };
 
-  // AUTO-REFRESH (every 10 seconds)
   useEffect(() => {
     if (!isConnected) return;
     
@@ -189,7 +182,7 @@ useEffect(() => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isConnected]);
 
-  // TRADING ACTIONS
+
   const placeOrder = async (params: any) => {
     if (!isInitialized) throw new Error('Service not initialized');
     

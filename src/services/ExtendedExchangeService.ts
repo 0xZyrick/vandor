@@ -1,4 +1,3 @@
-// ExtendedExchangeService.ts - PRODUCTION MAINNET READY
 import { Account } from 'starknet';
 import { signAndFormatOrder } from '../utils/extendedOrderSigning';
 

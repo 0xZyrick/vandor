@@ -7,7 +7,7 @@ import './index.css'
 import { ExtendedExchangeProvider } from './contexts/ExtendedExchangeContext.tsx'
 
 console.log('🚀 Vandor starting...');
-console.log('🌍 Network:', import.meta.env.VITE_NETWORK || 'sepolia');
+console.log('🌍 Network:', import.meta.env.VITE_NETWORK || 'mainnet');
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
