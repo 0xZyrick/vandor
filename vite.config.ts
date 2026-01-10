@@ -1,14 +1,30 @@
-
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
   ],
+  optimizeDeps: {
+    include: ['starknet', '@starknet-react/core', '@starknet-react/chains'],
+    exclude: []
+  },
+  build: {
+    commonjsOptions: {
+      include: [/node_modules/],
+      transformMixedEsModules: true
+    },
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'starknet': ['starknet'],
+          'starknet-react': ['@starknet-react/core', '@starknet-react/chains']
+        }
+      }
+    }
+  },
   server: {
     proxy: {
       '/api': {
@@ -19,4 +35,7 @@ export default defineConfig({
       }
     }
   },
+  resolve: {
+    dedupe: ['starknet']
+  }
 })
