@@ -70,23 +70,34 @@ export function ExtendedExchangeProvider({ children }: { children: ReactNode }) 
   const [loadingBalance, setLoadingBalance] = useState(false);
 
   // INITIALIZE SERVICE FOR TESTNET
-  useEffect(() => {
-    try {
-      // For testnet, these can be empty strings since we're just reading public data
-      initializeExtendedService({
-        apiKey: '',
-        starkPrivateKey: '',
-        clientId: 'VANDOR_TESTNET',
-        vaultNumber: 0,
-        network: 'sepolia',
-      });
-      
-      setIsInitialized(true);
-      console.log('✅ Extended Exchange Service initialized (TESTNET MODE)');
-    } catch (error) {
-      console.error('❌ Failed to initialize Extended Exchange:', error);
+// src/contexts/ExtendedExchangeContext.tsx
+
+useEffect(() => {
+  try {
+    const apiKey = import.meta.env.VITE_EXTENDED_API_KEY || '';
+    const vaultNumber = parseInt(import.meta.env.VITE_VAULT_NUMBER || '0');
+    const network = import.meta.env.VITE_NETWORK || 'mainnet';
+
+    if (!vaultNumber) {
+      console.warn('⚠️ Vault number not configured - trading will not work');
     }
-  }, []);
+
+    initializeExtendedService({
+      apiKey,
+      starkPrivateKey: '', // Not needed - wallet signs
+      clientId: 'VANDOR_MAINNET',
+      vaultNumber,
+      network,
+    });
+    
+    setIsInitialized(true);
+    console.log('✅ Extended Exchange initialized');
+    console.log('🌐 Network:', network);
+    console.log('🏦 Vault:', vaultNumber || 'NOT CONFIGURED');
+  } catch (error) {
+    console.error('❌ Failed to initialize:', error);
+  }
+}, []);
 
   // CONNECT WALLET
   useEffect(() => {

@@ -4,6 +4,10 @@ import { LayoutGrid, BarChart3, User } from 'lucide-react';
 export default function BottomNav() {
   const location = useLocation();
 
+  if (location.pathname === '/') {
+    return null;
+   }
+
   const tabs = [
     { name: 'Markets', path: '/markets', icon: <LayoutGrid className="w-4 h-4" /> },
     { name: 'Trade', path: '/btcusdc', icon: <BarChart3 className="w-4 h-4" /> },
@@ -15,10 +19,6 @@ export default function BottomNav() {
     if (path === '/markets') {
       return current === '/' || current === '/markets';
     }
-
-    if (location.pathname === '/') {
-    return null;
-   }
     
     if (path === '/solusdc') {
       const navPaths = ['/markets', '/', '/dashboard', '/account'];

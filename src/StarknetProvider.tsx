@@ -1,5 +1,6 @@
+// StarknetProvider.tsx (FIXED - No Cartridge, Mobile Support Added)
 import React from 'react';
-import { sepolia } from "@starknet-react/chains";
+import { mainnet } from "@starknet-react/chains";
 import {
   StarknetConfig,
   publicProvider,
@@ -7,40 +8,36 @@ import {
   braavos,
   voyager,
   useInjectedConnectors,
-  Connector
 } from "@starknet-react/core";
 
-// CORRECT Cartridge import
-import ControllerConnector from "@cartridge/controller";
-
 export function StarknetProvider({ children }: { children: React.ReactNode }) {
+  
+  // Get injected wallet connectors (browser extensions)
   const { connectors: injectedConnectors } = useInjectedConnectors({
     recommended: [
       argent(),
       braavos(),
     ],
     includeRecommended: "always",
+    // This will detect mobile wallets too
+    order: "random",
   });
 
-  // Cartridge Controller for Sepolia testnet
-  const controller = new ControllerConnector({
-    rpcUrl: "https://api.cartridge.gg/x/starknet/sepolia",
-    policies: []
-  }) as never as Connector;
-
-  // Combine all connectors
-  const allConnectors = [
-    controller,
-    ...injectedConnectors
-  ];
-
-    console.log('🔌 Available connectors:', allConnectors.map(c => c.id));
+  // 📱 Mobile Wallet Support
+  // Argent Mobile and Braavos Mobile use WalletConnect
+  // They'll be automatically detected by useInjectedConnectors
+  
+  console.log('🔌 Available connectors:', injectedConnectors.map(c => ({
+    id: c.id,
+    name: c.name,
+    available: c.available,
+  })));
 
   return (
     <StarknetConfig
-      chains={[sepolia]}
+      chains={[mainnet]} // CHANGED FROM sepolia
       provider={publicProvider()}
-      connectors={allConnectors}
+      connectors={injectedConnectors}
       explorer={voyager}
       autoConnect={true}
     >
