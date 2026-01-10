@@ -22,14 +22,14 @@ interface StarknetDomain {
 
 class ExtendedExchangeService {
   private config: ExtendedConfig;
-  private baseUrl: string;
+  // private baseUrl: string;
   private account: Account | null = null;
   private domain: StarknetDomain;
   private isMainnet: boolean;
 
   constructor(config: ExtendedConfig) {
     this.config = config;
-    this.baseUrl = '/api';
+    // this.baseUrl = '/api';
     this.isMainnet = config.network === 'mainnet';
     
     // MAINNET vs TESTNET domain config
