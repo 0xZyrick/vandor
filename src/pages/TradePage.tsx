@@ -216,7 +216,6 @@ const StatCard = ({
   </div>
 );
 
-// MAIN TRADE PAGE
 
 export default function TradePage() {
   const { pairSlug } = useParams<{ pairSlug: string }>();
@@ -233,7 +232,7 @@ export default function TradePage() {
   
   const orderTicketRef = useRef<HTMLDivElement>(null);
 
-  // Convert URL slug to symbol format
+
   const slugToSymbol = (slug: string): string => {
     const clean = slug.replace(/[-_]/g, '').toUpperCase();
     
@@ -245,7 +244,6 @@ export default function TradePage() {
     return clean;
   };
 
-  // Save and load market persistence
   const saveCurrentMarket = (symbol: string) => {
     try {
       localStorage.setItem('vello_current_market', symbol);
@@ -302,7 +300,6 @@ export default function TradePage() {
     }
   };
 
-  // Scroll detection for mobile button
   useEffect(() => {
     const handleScroll = () => {
       if (orderTicketRef.current) {

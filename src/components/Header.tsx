@@ -48,7 +48,6 @@ export default function Header() {
     }
   }, [isConnected, connectionStatus]);
 
-    // Hide header on landing page
   if (location.pathname === '/') {
     return null;
   }

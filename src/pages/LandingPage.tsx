@@ -1,15 +1,12 @@
-// import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TrendingUp, Zap, Shield, ArrowRight } from 'lucide-react';
 import { useAccount } from '@starknet-react/core';
 import { useEffect } from 'react';
 
 export default function LandingPage() {
-  // const [showConnectModal, setShowConnectModal] = useState(false);
   const { isConnected } = useAccount();
   const navigate = useNavigate();
 
-  // Auto-redirect if already connected
   useEffect(() => {
     if (isConnected) {
       navigate('/markets');

@@ -42,7 +42,6 @@ const formatPercent = (val: any): string => {
   return `${sign}${num.toFixed(2)}%`;
 };
 
-// API SERVICE
 const fetchLiveMarkets = async (): Promise<Market[]> => {
     
   const response = await fetch('/api/v1/info/markets');
@@ -53,7 +52,6 @@ const fetchLiveMarkets = async (): Promise<Market[]> => {
   
   const data = await response.json();
   
-  // Debug: Log everything
   console.log("📊 Full Response:", data);
   console.log("📊 Response Type:", typeof data);
   console.log("📊 Has 'data' key:", 'data' in data);
@@ -127,7 +125,6 @@ const fetchLiveMarkets = async (): Promise<Market[]> => {
   return cryptoMarkets;
 };
 
-// Mini Sparkline Chart
 const Sparkline = ({ isPositive }: { isPositive: boolean }) => {
   const points = isPositive 
     ? "0,35 18,28 36,32 54,25 72,18 90,22 108,15 126,20 144,12"
@@ -145,7 +142,6 @@ const Sparkline = ({ isPositive }: { isPositive: boolean }) => {
   );
 };
 
-// Market Row Component
 const MarketListRow = ({ market, onClick }: { market: Market; onClick: () => void }) => {
   const isPositive = market.priceChangePercent >= 0;
 
@@ -259,8 +255,7 @@ export default function MarketsPage() {
 
   useEffect(() => {
     loadMarkets();
-    // Refresh data every 30 seconds
-    const interval = setInterval(loadMarkets, 30000);
+    const interval = setInterval(loadMarkets, 10000);
     return () => clearInterval(interval);
   }, []);
 

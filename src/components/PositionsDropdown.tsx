@@ -18,7 +18,7 @@ export default function PositionsDropdown() {
 
   const hasPositions = positions.length > 0;
 
-  // Handle close position
+
   const handleClosePosition = async (position: any) => {
     if (!confirm(`Close ${position.side} ${position.symbol}?`)) {
       return;

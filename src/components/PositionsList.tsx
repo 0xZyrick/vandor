@@ -1,4 +1,3 @@
-// src/components/PositionsList.tsx
 
 import { useState } from 'react';
 import { TrendingUp, TrendingDown, X, Loader2, RefreshCw } from 'lucide-react';

@@ -1,10 +1,8 @@
 import { X, LayoutGrid, TrendingUp, Trophy, Wallet,BookText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-// import { useState } from 'react';
 
 export default function SideMenu({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) {
   const navigate = useNavigate();
-  // const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
   const links = [
     { name: 'Markets', icon: LayoutGrid, path: '/markets' },

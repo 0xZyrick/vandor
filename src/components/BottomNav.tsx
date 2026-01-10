@@ -41,7 +41,6 @@ export default function BottomNav() {
                 active ? 'text-blue-400' : 'text-gray-500'
               }`}
             >
-              {/* Icon Container */}
               <div className={`p-1 rounded-xl transition-colors ${active ? 'bg-blue-400/10' : ''}`}>
                 {tab.icon}
               </div>

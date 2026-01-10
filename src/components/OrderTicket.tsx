@@ -1,4 +1,3 @@
-// OrderTicket.tsx - PRODUCTION READY WITH SAFETY FEATURES
 import { useState, useEffect } from 'react';
 import { useAccount } from "@starknet-react/core";
 import { Settings2, AlertCircle, CheckCircle2, Loader2, Wallet, AlertTriangle } from 'lucide-react';
@@ -29,7 +28,6 @@ export default function OrderTicket({ symbol, currentPrice }: OrderTicketProps) 
   const [orderResult, setOrderResult] = useState<{ success: boolean; message: string } | null>(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
-  // SAFETY: Beta position limit ($100)
   const BETA_MAX_POSITION = 100;
 
   useEffect(() => {
@@ -41,7 +39,7 @@ export default function OrderTicket({ symbol, currentPrice }: OrderTicketProps) 
 
   const amountNum = parseFloat(amount) || 0;
   const positionSize = amountNum * leverage;
-  const estimatedFee = positionSize * 0.00025; // 0.025% taker fee
+  const estimatedFee = positionSize * 0.00025;
   
   const estimateLiquidation = () => {
     if (!currentPrice || amountNum === 0) return null;
@@ -93,7 +91,6 @@ export default function OrderTicket({ symbol, currentPrice }: OrderTicketProps) 
       return;
     }
 
-    // SAFETY: Check beta limit
     if (positionSize > BETA_MAX_POSITION) {
       setOrderResult({ 
         success: false, 
@@ -102,7 +99,6 @@ export default function OrderTicket({ symbol, currentPrice }: OrderTicketProps) 
       return;
     }
 
-    // All checks passed - show confirmation
     setShowConfirmModal(true);
   };
 
@@ -121,7 +117,6 @@ export default function OrderTicket({ symbol, currentPrice }: OrderTicketProps) 
         leverage,
       });
 
-      // This will trigger the wallet signature popup!
       const result = await placeOrder({
         symbol: symbol!,
         side: activeTab,
@@ -139,11 +134,10 @@ export default function OrderTicket({ symbol, currentPrice }: OrderTicketProps) 
           message: `✅ ${activeTab === 'long' ? 'Long' : 'Short'} order placed! ID: ${result.orderId}` 
         });
         
-        // Clear form
         setAmount('');
         setLimitPrice('');
       } else {
-        // Handle specific errors
+
         if (result.error?.includes('rejected') || result.error?.includes('denied')) {
           setOrderResult({ 
             success: false, 
@@ -159,7 +153,6 @@ export default function OrderTicket({ symbol, currentPrice }: OrderTicketProps) 
     } catch (error: any) {
       console.error('❌ Order error:', error);
       
-      // Parse error messages
       let errorMessage = 'An error occurred';
       
       if (error.message?.includes('rejected') || error.message?.includes('denied')) {
@@ -190,7 +183,6 @@ export default function OrderTicket({ symbol, currentPrice }: OrderTicketProps) 
     <>
       <div className="w-96 flex flex-col bg-[#0a0a0f] rounded-2xl border border-gray-900/25 shadow-2xl overflow-y-auto h-full p-1">
         
-        {/* Fixed Header */}
         <div className="shrink-0 border-b border-gray-900 flex justify-between items-center">
           <div className="flex gap-4 px-4 pt-4 pb-2">
             <button 
@@ -218,11 +210,9 @@ export default function OrderTicket({ symbol, currentPrice }: OrderTicketProps) 
           <Settings2 className="p-1 w-7 h-7 rounded-lg text-gray-500 cursor-pointer hover:text-white transition shrink-0 border border-gray-400/25" />
         </div>
 
-        {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto p-4 w-full">
           <div className="space-y-2">
           
-          {/* Long/Short Toggle */}
           <div className="flex justify-between items-center">
             <div className="flex gap-2 flex-1">
               <button 
@@ -248,7 +238,6 @@ export default function OrderTicket({ symbol, currentPrice }: OrderTicketProps) 
             </div>
           </div>
 
-          {/* Balance Display */}
           <div className="flex justify-between items-center">
             <h3 className="text-gray-500 text-sm">Available Balance</h3>
             <div className="flex items-center gap-2">
@@ -265,7 +254,6 @@ export default function OrderTicket({ symbol, currentPrice }: OrderTicketProps) 
             </div>
           </div>
 
-          {/* Limit Price Input */}
           {orderType === 'limit' && (
             <div className="flex flex-col gap-2">
               <h3 className="text-gray-500 text-sm">Limit Price</h3>
@@ -282,7 +270,6 @@ export default function OrderTicket({ symbol, currentPrice }: OrderTicketProps) 
             </div>
           )}
 
-          {/* Amount Input */}
           <div className="flex flex-col gap-2">
             <div className="flex w-full justify-between gap-2 px-3 py-4 rounded-lg border border-gray-800">
               <input 
@@ -295,7 +282,6 @@ export default function OrderTicket({ symbol, currentPrice }: OrderTicketProps) 
               <span className="text-md font-semibold text-gray-400 bg-gray-900 px-4 py-1 rounded-lg">USDC</span>
             </div>
             
-            {/* Quick Amount Buttons */}
             <div className="grid grid-cols-4 gap-2 mt-2">
               {[25, 50, 75, 100].map(percent => (
                 <button 
@@ -310,7 +296,6 @@ export default function OrderTicket({ symbol, currentPrice }: OrderTicketProps) 
             </div>
           </div>
 
-          {/* Leverage Slider */}
           <div>
             <div className="flex justify-between text-sm mb-2">
               <span className="text-gray-500">Leverage</span>
@@ -331,7 +316,6 @@ export default function OrderTicket({ symbol, currentPrice }: OrderTicketProps) 
             </div>
           </div>
 
-          {/* Position Size Display */}
           <div className="flex w-full justify-between gap-2 px-3 py-3 rounded-lg bg-gray-900/50 border border-gray-800">
             <span className="text-sm text-gray-500">Position Size</span>
             <span className="text-sm font-semibold text-white">
@@ -339,7 +323,6 @@ export default function OrderTicket({ symbol, currentPrice }: OrderTicketProps) 
             </span>
           </div>
 
-          {/* Beta Limit Warning */}
           {positionSize > BETA_MAX_POSITION * 0.8 && (
             <div className="flex items-center gap-2 p-2 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
               <AlertTriangle className="w-4 h-4 text-yellow-400 shrink-0" />
@@ -349,7 +332,6 @@ export default function OrderTicket({ symbol, currentPrice }: OrderTicketProps) 
             </div>
           )}
 
-          {/* Order Details */}
           <div className="pt-2 border-t border-gray-900 space-y-2">
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">Entry Price</span>
@@ -372,7 +354,6 @@ export default function OrderTicket({ symbol, currentPrice }: OrderTicketProps) 
             </div>
           </div>
 
-          {/* Order Result Message */}
           {orderResult && (
             <div className={`flex items-center gap-2 p-3 rounded-lg ${
               orderResult.success 
@@ -392,7 +373,6 @@ export default function OrderTicket({ symbol, currentPrice }: OrderTicketProps) 
             </div>
           )}
 
-          {/* Place Order Button */}
           <button 
             onClick={validateAndShowConfirmation}
             disabled={isPlacingOrder || !isConnected || !isExtendedConnected || !symbol}
@@ -421,7 +401,6 @@ export default function OrderTicket({ symbol, currentPrice }: OrderTicketProps) 
             )}
           </button>
 
-          {/* Footer */}
           <div className="text-center text-xs text-gray-600 mt-2">
             Powered by Extended Exchange • Mainnet
           </div>

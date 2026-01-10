@@ -41,28 +41,23 @@ export default function PortfolioPage() {
   // Get wallet type
   const getWalletType = () => {
     if (!connector) return 'Wallet';
-    if (connector.id.includes('cartridge')) return 'Controller';
     if (connector.id.includes('argent')) return 'Argent X';
     if (connector.id.includes('braavos')) return 'Braavos';
     return connector.name || 'Wallet';
   };
 
-  // Calculate portfolio metrics
   const totalPnL = positions.reduce((sum, pos) => sum + pos.unrealizedPnl, 0);
   const usdcBalance = balance?.formatted ? parseFloat(balance.formatted) : 0;
   const totalEquity = usdcBalance + totalPnL;
   const marginUsed = positions.reduce((sum, p) => sum + (p.size * p.entryPrice / p.leverage), 0);
   const marginAvailable = usdcBalance - marginUsed;
 
-  // Load order history (placeholder - implement when context has this method)
+
   const loadOrderHistory = async () => {
     if (!isConnected) return;
     
     setLoadingHistory(true);
     try {
-      // TODO: Implement when getOrderHistory is added to context
-      // const history = await getOrderHistory({ limit: 50 });
-      // setOrderHistory(history);
       setOrderHistory([]); // Placeholder
     } catch (error) {
       console.error('Failed to load order history:', error);

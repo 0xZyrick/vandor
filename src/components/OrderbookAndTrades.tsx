@@ -3,8 +3,6 @@ import { TrendingUp, TrendingDown, X, RefreshCw } from 'lucide-react';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-// TYPES
-
 interface OrderbookEntry {
   price: number;
   size: number;
@@ -24,8 +22,6 @@ interface OrderbookAndTradesProps {
   isMobile?: boolean;
 }
 
-// ORDERBOOK AND TRADES COMPONENT
-
 export default function OrderbookAndTrades({ 
   symbol, 
   onClose, 
@@ -37,12 +33,10 @@ export default function OrderbookAndTrades({
   const [trades, setTrades] = useState<Trade[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch orderbook data
   const fetchOrderbook = async () => {
     try {
       setLoading(true);
       
-      // Use Extended Exchange orderbook API
       const apiUrl = import.meta.env.DEV 
         ? `/api/v1/info/orderbook/${symbol}?depth=20`
         : `https://api.starknet.extended.exchange/api/v1/info/orderbook/${symbol}?depth=20`;
@@ -52,12 +46,11 @@ export default function OrderbookAndTrades({
       
       console.log('📊 Orderbook data:', data);
       
-      // Parse orderbook data
       if (data.data) {
         const orderbookBids = (data.data.bids || []).map((bid: any) => ({
           price: parseFloat(bid.price || bid[0]),
           size: parseFloat(bid.size || bid[1]),
-          total: parseFloat(bid.total || bid[1]), // Cumulative
+          total: parseFloat(bid.total || bid[1]),
         })).slice(0, 15);
         
         const orderbookAsks = (data.data.asks || []).map((ask: any) => ({
@@ -67,21 +60,19 @@ export default function OrderbookAndTrades({
         })).slice(0, 15);
         
         setBids(orderbookBids);
-        setAsks(orderbookAsks.reverse()); // Show highest ask at bottom
+        setAsks(orderbookAsks.reverse());
       }
     } catch (error) {
       console.error('❌ Failed to fetch orderbook:', error);
-      // Generate mock data for demo
       generateMockData();
     } finally {
       setLoading(false);
     }
   };
 
-  // Fetch recent trades
+
   const fetchTrades = async () => {
     try {
-      // Extended Exchange trades API
       const apiUrl = import.meta.env.DEV 
         ? `/api/v1/info/trades/${symbol}?limit=50`
         : `https://api.starknet.extended.exchange/api/v1/info/trades/${symbol}?limit=50`;
@@ -107,9 +98,8 @@ export default function OrderbookAndTrades({
     }
   };
 
-  // Generate mock orderbook for demo
   const generateMockData = () => {
-    const basePrice = 93800; // BTC price
+    const basePrice = 93800; 
     const mockBids: OrderbookEntry[] = [];
     const mockAsks: OrderbookEntry[] = [];
     
@@ -131,7 +121,6 @@ export default function OrderbookAndTrades({
     setAsks(mockAsks.reverse());
   };
 
-  // Generate mock trades
   const generateMockTrades = () => {
     const basePrice = 93800;
     const mockTrades: Trade[] = [];
@@ -161,7 +150,6 @@ export default function OrderbookAndTrades({
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [symbol]);
 
-  // Calculate max size for visual bars
   const maxBidSize = Math.max(...bids.map(b => b.size), 1);
   const maxAskSize = Math.max(...asks.map(a => a.size), 1);
 
@@ -170,7 +158,6 @@ export default function OrderbookAndTrades({
       isMobile ? 'w-full h-full' : 'w-[320px] h-full'
     }`}>
       
-      {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-900">
         <div className="flex gap-2">
           <button
@@ -214,21 +201,17 @@ export default function OrderbookAndTrades({
         </div>
       </div>
 
-      {/* Content */}
       <div className="flex-1 overflow-hidden">
         
-        {/* ORDERBOOK TAB */}
         {activeTab === 'orderbook' && (
           <div className="h-full flex flex-col text-xs">
             
-            {/* Headers */}
             <div className="flex justify-between px-4 py-2 text-gray-500 font-semibold border-b border-gray-900">
               <span>Price (USD)</span>
               <span>Size</span>
               <span>Total</span>
             </div>
 
-            {/* Asks (Sells) - Red */}
             <div className="flex-1 overflow-y-auto flex flex-col-reverse">
               {asks.map((ask, index) => (
                 <div
@@ -254,7 +237,6 @@ export default function OrderbookAndTrades({
               ))}
             </div>
 
-            {/* Spread */}
             <div className="py-3 px-4 bg-gray-900/50 border-y border-gray-800">
               <div className="flex justify-between items-center">
                 <span className="text-gray-500 text-xs">Spread</span>
@@ -273,7 +255,6 @@ export default function OrderbookAndTrades({
                   key={`bid-${index}`}
                   className="relative flex justify-between px-4 py-1 hover:bg-green-500/10 transition"
                 >
-                  {/* Background bar */}
                   <div 
                     className="absolute right-0 top-0 h-full bg-green-500/10"
                     style={{ width: `${(bid.size / maxBidSize) * 100}%` }}
@@ -298,14 +279,12 @@ export default function OrderbookAndTrades({
         {activeTab === 'trades' && (
           <div className="h-full flex flex-col text-xs">
             
-            {/* Headers */}
             <div className="flex justify-between px-4 py-2 text-gray-500 font-semibold border-b border-gray-900">
               <span>Price (USD)</span>
               <span>Size</span>
               <span>Time</span>
             </div>
 
-            {/* Trades List */}
             <div className="flex-1 overflow-y-auto">
               {trades.map((trade, index) => (
                 <div
