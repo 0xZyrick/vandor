@@ -5,9 +5,13 @@ import App from './App.tsx'
 import { StarknetProvider } from './StarknetProvider.tsx'
 import './index.css'
 import { ExtendedExchangeProvider } from './contexts/ExtendedExchangeContext.tsx'
+import { suppressWalletVersionErrors } from './utils/suppressWalletErrors';
 
 console.log('🚀 Vandor starting...');
 console.log('🌍 Network:', import.meta.env.VITE_NETWORK || 'mainnet');
+
+// Suppress wallet version warnings BEFORE React renders
+suppressWalletVersionErrors();
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
