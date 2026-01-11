@@ -181,7 +181,7 @@ export default function OrderTicket({ symbol, currentPrice }: OrderTicketProps) 
 
   return (
     <>
-      <div className="flex flex-col bg-[#0a0a0f] rounded-2xl border border-gray-900/25 shadow-2xl overflow-y-auto h-full p-1">
+      <div className="w-full flex flex-col bg-[#0a0a0f] rounded-2xl border border-gray-900/25 shadow-2xl overflow-y-auto h-full p-1">
         
         <div className="shrink-0 border-b border-gray-900 flex justify-between items-center">
           <div className="flex gap-4 px-4 pt-4 pb-2">

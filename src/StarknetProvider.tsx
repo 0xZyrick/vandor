@@ -1,14 +1,14 @@
-// StarknetProvider.tsx - NUCLEAR FIX
-import React from 'react';
-import {
-  StarknetConfig,
-  argent,
-  braavos,
-  voyager,
-  useInjectedConnectors,
-  jsonRpcProvider,
+// StarknetProvider.tsx
+import { mainnet } from "@starknet-react/chains";
+import { 
+  StarknetConfig, 
+  argent, 
+  braavos, 
+  voyager, 
+  useInjectedConnectors, 
+  // publicProvider // Use this for reliability
+  jsonRpcProvider
 } from "@starknet-react/core";
-import { sepolia, mainnet } from "@starknet-react/chains";
 
 export function StarknetProvider({ children }: { children: React.ReactNode }) {
   const { connectors } = useInjectedConnectors({
@@ -16,28 +16,19 @@ export function StarknetProvider({ children }: { children: React.ReactNode }) {
     includeRecommended: "always",
   });
 
-  const network = import.meta.env.VITE_NETWORK === 'mainnet' ? mainnet : sepolia;
+  // FORCE Mainnet here to stop the flip-flopping
+  const network = mainnet; 
 
-  // NUCLEAR FIX: Use public RPC provider (CORS-friendly)
   const rpcProvider = jsonRpcProvider({
-    rpc: () => {
-      const isMainnet = import.meta.env.VITE_NETWORK === 'mainnet';
-      
-      return {
-        nodeUrl: isMainnet 
-          ? 'https://free-rpc.nethermind.io/mainnet-juno'
-          : 'https://free-rpc.nethermind.io/sepolia-juno',
-      };
-    },
+    rpc: () => ({
+      // Nethermind is good, but Lava or Blast are often more stable for Mainnet
+      nodeUrl: 'https://free-rpc.nethermind.io/mainnet-juno',
+    }),
   });
-
-  console.log('🚀 Vandor starting...');
-  console.log('🌍 Network:', network.network);
-  console.log('🔌 Available connectors:', connectors);
 
   return (
     <StarknetConfig
-      chains={[network]}
+      chains={[network]} // Only provide Mainnet
       provider={rpcProvider}
       connectors={connectors}
       explorer={voyager}
@@ -47,5 +38,3 @@ export function StarknetProvider({ children }: { children: React.ReactNode }) {
     </StarknetConfig>
   );
 }
-
-export default StarknetProvider;

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, TrendingUp, TrendingDown, ArrowRight, Activity, DollarSign, BarChart3, RefreshCw, AlertCircle } from "lucide-react";
 import BottomNav from '../components/BottomNav';
-import { TokenIcon } from '@token-icons/react';
+// import { TokenIcon } from '@token-icons/react';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */    
 
@@ -153,13 +153,18 @@ const MarketListRow = ({ market, onClick }: { market: Market; onClick: () => voi
       className="flex items-center gap-3 p-4 hover:bg-white/5 cursor-pointer transition-all border-b border-gray-900/50 group"
     >
     {/* icon */}
-      <div className="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center shrink-0 border border-white/10 group-hover:border-blue-500/50 transition-colors">
-        <TokenIcon 
-          symbol={symbol} 
-          size={24} 
-          variant="branded"
-        />
-      </div>
+    <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center shrink-0 border border-white/10">
+      <img 
+        src={`https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${symbol}/logo.png`}
+        alt={symbol}
+        className="w-6 h-6"
+        onError={(e) => {
+          // If image fails, replace with a styled Letter
+          e.currentTarget.style.display = 'none';
+          e.currentTarget.parentElement!.innerHTML = `<span class="text-xs font-bold">${symbol.substring(0,3)}</span>`;
+        }}
+      />
+    </div>
 
       {/* Token Info */}
       <div className="flex-1 gap-3 min-w-500px">
