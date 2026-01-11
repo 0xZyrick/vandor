@@ -155,7 +155,7 @@ const MarketListRow = ({ market, onClick }: { market: Market; onClick: () => voi
     {/* icon */}
     <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center shrink-0 border border-white/10">
       <img 
-        src={`https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${symbol}/logo.png`}
+        src={`https://hyperliquid.xyz/assets/tokens/${symbol}.svg`}
         alt={symbol}
         className="w-6 h-6"
         onError={(e) => {
