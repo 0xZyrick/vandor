@@ -18,15 +18,15 @@ export function StarknetProvider({ children }: { children: React.ReactNode }) {
 
   const network = import.meta.env.VITE_NETWORK === 'mainnet' ? mainnet : sepolia;
 
-  // NUCLEAR FIX: Custom RPC provider that doesn't check version
+  // NUCLEAR FIX: Use public RPC provider (CORS-friendly)
   const rpcProvider = jsonRpcProvider({
     rpc: () => {
       const isMainnet = import.meta.env.VITE_NETWORK === 'mainnet';
       
       return {
         nodeUrl: isMainnet 
-          ? 'https://starknet-mainnet.public.blastapi.io/rpc/v0_7'
-          : 'https://starknet-sepolia.public.blastapi.io/rpc/v0_7',
+          ? 'https://free-rpc.nethermind.io/mainnet-juno'
+          : 'https://free-rpc.nethermind.io/sepolia-juno',
       };
     },
   });
