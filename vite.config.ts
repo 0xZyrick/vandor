@@ -27,7 +27,7 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/api': {
+      '/api/v1': {
         target: 'https://api.starknet.extended.exchange',
         changeOrigin: true,
         secure: false,

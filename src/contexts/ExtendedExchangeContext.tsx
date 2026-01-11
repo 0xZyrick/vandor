@@ -56,7 +56,6 @@ const ExtendedExchangeContext = createContext<ExtendedExchangeContextType | unde
 
 export function ExtendedExchangeProvider({ children }: { children: ReactNode }) {
   const { account } = useAccount();
-  
   const [isInitialized, setIsInitialized] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [positions, setPositions] = useState<Position[]>([]);

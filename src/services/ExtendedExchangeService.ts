@@ -21,15 +21,17 @@ interface StarknetDomain {
 
 class ExtendedExchangeService {
   private config: ExtendedConfig;
-  // private baseUrl: string;
+  private baseUrl: string;
   private account: Account | null = null;
   private domain: StarknetDomain;
   private isMainnet: boolean;
 
   constructor(config: ExtendedConfig) {
     this.config = config;
-    // this.baseUrl = '/api';
     this.isMainnet = config.network === 'mainnet';
+    
+    // Use proxy URL - this routes through your Vercel/Vite proxy
+    this.baseUrl = '/api/v1';
     
     // MAINNET vs TESTNET domain config
     this.domain = this.isMainnet 
@@ -48,32 +50,8 @@ class ExtendedExchangeService {
     
     console.log("✅ Extended Exchange Service initialized");
     console.log("🌐 Network:", this.isMainnet ? 'MAINNET' : 'SEPOLIA TESTNET');
-    console.log("📍 Vault:", config.vaultNumber);
-  }
-
-  private async safeFetch(endpoint: string, options: RequestInit = {}) {
-    const cleanEndpoint = endpoint
-      .replace(/^https?:\/\/api\.starknet\.extended\.exchange/, '')
-      .replace(/^https?:\/\/[^/]+/, '');
-    
-    const url = cleanEndpoint.startsWith('/api') 
-      ? cleanEndpoint 
-      : `/api${cleanEndpoint.startsWith('/') ? cleanEndpoint : `/${cleanEndpoint}`}`;
-    
-    console.log("🔍 API Request:", url);
-    
-    const response = await fetch(url, {
-      ...options,
-      credentials: 'same-origin',
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`❌ API Error ${response.status}:`, errorText);
-      throw new Error(`API Error ${response.status}: ${errorText}`);
-    }
-
-    return response.json();
+    console.log("📍 Base URL:", this.baseUrl);
+    console.log("🏦 Vault:", config.vaultNumber);
   }
 
   connectWallet(account: Account) {
@@ -95,7 +73,8 @@ class ExtendedExchangeService {
     endpoint: string,
     body?: any
   ): Promise<T> {
-    const cleanEndpoint = endpoint.replace(/^\/api/, '');
+    // Construct full URL - endpoint should NOT have /v1 prefix
+    const url = `${this.baseUrl}${endpoint}`;
     
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
@@ -107,12 +86,23 @@ class ExtendedExchangeService {
       headers['X-Api-Key'] = this.config.apiKey;
     }
 
+    console.log(`🔍 ${method} ${url}`);
+
     try {
-      const data = await this.safeFetch(cleanEndpoint, {
+      const response = await fetch(url, {
         method,
         headers,
         body: body ? JSON.stringify(body) : undefined,
+        credentials: 'same-origin',
       });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`❌ API Error ${response.status}:`, errorText);
+        throw new Error(`API Error: ${response.status}`);
+      }
+
+      const data = await response.json();
       return data;
     } catch (error: any) {
       console.error(`❌ ${method} ${endpoint} failed:`, error);
@@ -120,18 +110,18 @@ class ExtendedExchangeService {
     }
   }
 
-  // PUBLIC ENDPOINTS
+  // PUBLIC ENDPOINTS (no /v1 prefix - it's in baseUrl)
 
   async getMarkets() {
-    return this.makeRequest('GET', '/v1/info/markets');
+    return this.makeRequest('GET', '/info/markets');
   }
 
   async getMarketStats(market: string) {
-    return this.makeRequest('GET', `/v1/info/markets/${market}/stats`);
+    return this.makeRequest('GET', `/info/markets/${market}/stats`);
   }
 
   async getOrderbook(market: string) {
-    return this.makeRequest('GET', `/v1/info/markets/${market}/orderbook`);
+    return this.makeRequest('GET', `/info/markets/${market}/orderbook`);
   }
 
   // PRIVATE ENDPOINTS
@@ -142,7 +132,7 @@ class ExtendedExchangeService {
     }
 
     try {
-      const data: any = await this.makeRequest('GET', '/v1/user/balance');
+      const data: any = await this.makeRequest('GET', '/user/balance');
       
       return {
         available: parseFloat(data.data?.availableForTrade || '0'),
@@ -152,7 +142,6 @@ class ExtendedExchangeService {
       };
     } catch (error) {
       console.error("❌ Failed to get balance:", error);
-      // Return zero balance instead of throwing
       return { available: 0, total: 0, margin: 0, unrealizedPnL: 0 };
     }
   }
@@ -163,7 +152,7 @@ class ExtendedExchangeService {
     }
 
     try {
-      const data: any = await this.makeRequest('GET', '/v1/user/positions');
+      const data: any = await this.makeRequest('GET', '/user/positions');
       
       const positions = data.data || [];
       const totalPnL = positions.reduce((sum: number, p: any) => 
@@ -198,8 +187,8 @@ class ExtendedExchangeService {
 
     try {
       const endpoint = market 
-        ? `/v1/user/orders?market=${market}` 
-        : '/v1/user/orders';
+        ? `/user/orders?market=${market}` 
+        : '/user/orders';
       
       const data: any = await this.makeRequest('GET', endpoint);
       return data.data || [];
@@ -216,8 +205,8 @@ class ExtendedExchangeService {
 
     try {
       const endpoint = market 
-        ? `/v1/user/orders/history?market=${market}` 
-        : '/v1/user/orders/history';
+        ? `/user/orders/history?market=${market}` 
+        : '/user/orders/history';
       
       const data: any = await this.makeRequest('GET', endpoint);
       return data.data || [];
@@ -322,7 +311,7 @@ class ExtendedExchangeService {
       console.log("📨 API Payload:", JSON.stringify(orderPayload, null, 2));
 
       // Submit to Extended
-      const response: any = await this.makeRequest('POST', '/v1/user/order', orderPayload);
+      const response: any = await this.makeRequest('POST', '/user/order', orderPayload);
 
       console.log("✅ Order submitted successfully!");
       console.log("📥 Response:", response);
@@ -373,7 +362,7 @@ class ExtendedExchangeService {
 
     try {
       console.log("❌ Cancelling order:", orderId);
-      const data: any = await this.makeRequest('DELETE', `/v1/user/order/${orderId}`);
+      const data: any = await this.makeRequest('DELETE', `/user/order/${orderId}`);
       return { success: true, data };
     } catch (error: any) {
       return { success: false, error: error.message || "Failed to cancel order" };
@@ -392,7 +381,7 @@ class ExtendedExchangeService {
       symbol: params.symbol,
       side: params.side === 'long' ? 'short' : 'long',
       type: 'market',
-      size: params.size || 0, // If 0, Extended will close entire position
+      size: params.size || 0,
     });
   }
 }
