@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, TrendingUp, TrendingDown, ArrowRight, Activity, DollarSign, BarChart3, RefreshCw, AlertCircle } from "lucide-react";
 import BottomNav from '../components/BottomNav';
+import MarketIcon from '../components/MarketIcon';
 // import { TokenIcon } from '@token-icons/react';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */    
@@ -145,26 +146,19 @@ const Sparkline = ({ isPositive }: { isPositive: boolean }) => {
 const MarketListRow = ({ market, onClick }: { market: Market; onClick: () => void }) => {
   const isPositive = market.priceChangePercent >= 0;
 
-  const symbol = market.symbol.split('-')[0].toUpperCase();
-
   return (
     <div 
       onClick={onClick} 
       className="flex items-center gap-3 p-4 hover:bg-white/5 cursor-pointer transition-all border-b border-gray-900/50 group"
     >
     {/* icon */}
-    <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center shrink-0 border border-white/10">
-      <img 
-        src={`https://hyperliquid.xyz/assets/tokens/${symbol}.svg`}
-        alt={symbol}
-        className="w-6 h-6"
-        onError={(e) => {
-          // If image fails, replace with a styled Letter
-          e.currentTarget.style.display = 'none';
-          e.currentTarget.parentElement!.innerHTML = `<span class="text-xs font-bold">${symbol.substring(0,3)}</span>`;
-        }}
-      />
-    </div>
+      <div className="flex items-center gap-3">
+        <MarketIcon symbol={market.symbol} size={28} />
+        <div className="flex flex-col">
+          <span className="font-bold text-white">{market.symbol}</span>
+          {/* <span className="text-xs text-gray-400">{market.baseAsset}</span> */}
+        </div>
+      </div>
 
       {/* Token Info */}
       <div className="flex-1 gap-3 min-w-500px">
