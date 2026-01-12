@@ -153,7 +153,7 @@ const MarketListRow = ({ market, onClick }: { market: Market; onClick: () => voi
     >
     {/* icon */}
       <div className="flex items-center gap-3">
-        <MarketIcon symbol={market.symbol} size={28} />
+        <MarketIcon symbol={market.symbol} size={40} />
         <div className="flex flex-col">
           <span className="font-bold text-white">{market.symbol}</span>
           {/* <span className="text-xs text-gray-400">{market.baseAsset}</span> */}
