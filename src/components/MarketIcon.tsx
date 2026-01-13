@@ -12,23 +12,27 @@ const MarketIcon = ({ symbol, size = 32 }: MarketIconProps) => {
   const ticker = symbol.split(/[-/]/)[0].toUpperCase();
   const lowerTicker = ticker.toLowerCase();
 
-  if (stage === 0) {
-    return (
-      <div className="flex items-center justify-center rounded-full bg-slate-800" style={{ width: size, height: size }}>
-        <TokenIcon 
-          symbol={ticker} 
-          size={size - 8} 
-          variant="branded" 
-          onError={() => setStage(1)} // If it fails, go to Pyth
-        />
-      </div>
-    );
-  }
-
+  // Define fallback URLs
   const fallbacks = [
     `https://cdn.jsdelivr.net/gh/ErikThiart/cryptocurrency-icons@master/128/${lowerTicker}.png`,
     `https://ui-avatars.com/api/?name=${ticker}&background=1e293b&color=3b82f6&bold=true`
   ];
+
+  if (stage === 0) {
+    return (
+      <div 
+        className="flex items-center justify-center rounded-full bg-slate-800 shrink-0" 
+        style={{ width: size, height: size }}
+      >
+        <TokenIcon 
+          symbol={ticker} 
+          size={size - 8} 
+          variant="branded"
+          onError={() => setStage(1)} 
+        />
+      </div>
+    );
+  }
 
   return (
     <div 
@@ -36,11 +40,13 @@ const MarketIcon = ({ symbol, size = 32 }: MarketIconProps) => {
       style={{ width: size, height: size }}
     >
       <img
-        src={fallbacks[stage - 1]}
+        src={fallbacks[stage - 1]} 
         alt={ticker}
         className="w-full h-full object-contain p-1.5"
         onError={() => {
-          if (stage < fallbacks.length) setStage(stage + 1);
+          if (stage < fallbacks.length) {
+            setStage(prev => prev + 1);
+          }
         }}
       />
     </div>

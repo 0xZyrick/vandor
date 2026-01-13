@@ -36,17 +36,6 @@ export default function SideMenu({ isOpen, onClose }: { isOpen: boolean, onClose
             </button>
           ))}
         </nav>
-
-        <div className="mt-auto bg-blue-600/5 p-4 rounded-3xl border border-blue-500/10">
-          <div className="flex items-center gap-3 mb-3">
-             <div className="w-10 h-10 rounded-full bg-linear-to-tr from-blue-600 to-purple-600" />
-             <div>
-               <p className="text-xs text-gray-400">Builder Account</p>
-               <p className="text-sm font-bold">Code: 42069</p>
-             </div>
-          </div>
-          <button className="w-full py-2 bg-blue-600 rounded-xl text-xs font-bold">Account Settings</button>
-        </div>
       </div>
     </div>
   );
