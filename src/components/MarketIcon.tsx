@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { TokenIcon } from '@token-icons/react';
 
 interface MarketIconProps {
   symbol: string;
@@ -6,18 +7,26 @@ interface MarketIconProps {
 }
 
 const MarketIcon = ({ symbol, size = 32 }: MarketIconProps) => {
-  const [currentSource, setCurrentSource] = useState(0);
+  const [stage, setStage] = useState(0); 
   
-  // Clean the ticker (e.g., "BTC-USD" -> "btc")
-  const ticker = symbol.split(/[-/]/)[0].toLowerCase();
+  const ticker = symbol.split(/[-/]/)[0].toUpperCase();
+  const lowerTicker = ticker.toLowerCase();
 
-  // We define a sequence of sources to try in order
-  const sources = [
-    // 1. ErikThiart CMC Repo (The one you wanted)
-    `https://cdn.jsdelivr.net/gh/ErikThiart/cryptocurrency-icons@master/128/${ticker}.png`,
-    // 2. Pyth Network (Backup for Perps)
-    `https://raw.githubusercontent.com/pyth-network/pyth-assets/main/assets/crypto/${ticker.toUpperCase()}.svg`,
-    // 3. Fallback Letter Avatar
+  if (stage === 0) {
+    return (
+      <div className="flex items-center justify-center rounded-full bg-slate-800" style={{ width: size, height: size }}>
+        <TokenIcon 
+          symbol={ticker} 
+          size={size - 8} 
+          variant="branded" 
+          onError={() => setStage(1)} // If it fails, go to Pyth
+        />
+      </div>
+    );
+  }
+
+  const fallbacks = [
+    `https://cdn.jsdelivr.net/gh/ErikThiart/cryptocurrency-icons@master/128/${lowerTicker}.png`,
     `https://ui-avatars.com/api/?name=${ticker}&background=1e293b&color=3b82f6&bold=true`
   ];
 
@@ -27,13 +36,11 @@ const MarketIcon = ({ symbol, size = 32 }: MarketIconProps) => {
       style={{ width: size, height: size }}
     >
       <img
-        src={sources[currentSource]}
+        src={fallbacks[stage - 1]}
         alt={ticker}
         className="w-full h-full object-contain p-1.5"
         onError={() => {
-          if (currentSource < sources.length - 1) {
-            setCurrentSource(currentSource + 1);
-          }
+          if (stage < fallbacks.length) setStage(stage + 1);
         }}
       />
     </div>
