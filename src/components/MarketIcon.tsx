@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { TokenIcon } from '@token-icons/react';
+// import { TokenIcon } from '@token-icons/react';
 
 interface MarketIconProps {
   symbol: string;
@@ -7,28 +7,50 @@ interface MarketIconProps {
 }
 
 const MarketIcon = ({ symbol, size = 32 }: MarketIconProps) => {
-  const [stage, setStage] = useState(0); 
+  const [imageError, setImageError] = useState(false);
+  const [fallbackStage, setFallbackStage] = useState(0);
   
   const ticker = symbol.split(/[-/]/)[0].toUpperCase();
   const lowerTicker = ticker.toLowerCase();
 
-  // Define fallback URLs
   const fallbacks = [
     `https://cdn.jsdelivr.net/gh/ErikThiart/cryptocurrency-icons@master/128/${lowerTicker}.png`,
-    `https://ui-avatars.com/api/?name=${ticker}&background=1e293b&color=3b82f6&bold=true`
+    `https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/${lowerTicker}.png`,
+    `https://cryptoicons.org/api/icon/${lowerTicker}/128`,
+    `https://ui-avatars.com/api/?name=${ticker}&background=1e293b&color=3b82f6&bold=true&size=${size}`
   ];
 
-  if (stage === 0) {
+  if (!imageError) {
     return (
       <div 
         className="flex items-center justify-center rounded-full bg-slate-800 shrink-0" 
         style={{ width: size, height: size }}
       >
-        <TokenIcon 
-          symbol={ticker} 
-          size={size - 8} 
-          variant="branded"
-          onError={() => setStage(1)} 
+        <img
+          src={`https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/${lowerTicker}.png`}
+          alt={ticker}
+          className="w-full h-full object-contain p-1.5"
+          onError={() => setImageError(true)}
+        />
+      </div>
+    );
+  }
+
+  if (fallbackStage < fallbacks.length) {
+    return (
+      <div 
+        className="flex items-center justify-center rounded-full bg-slate-800 border border-white/10 shrink-0 overflow-hidden"
+        style={{ width: size, height: size }}
+      >
+        <img
+          src={fallbacks[fallbackStage]}
+          alt={ticker}
+          className="w-full h-full object-contain p-1.5"
+          onError={() => {
+            if (fallbackStage < fallbacks.length - 1) {
+              setFallbackStage(prev => prev + 1);
+            }
+          }}
         />
       </div>
     );
@@ -36,19 +58,15 @@ const MarketIcon = ({ symbol, size = 32 }: MarketIconProps) => {
 
   return (
     <div 
-      className="flex items-center justify-center rounded-full bg-slate-800 border border-white/10 shrink-0 overflow-hidden"
+      className="flex items-center justify-center rounded-full bg-linear-to-br from-blue-500 to-purple-500 shrink-0"
       style={{ width: size, height: size }}
     >
-      <img
-        src={fallbacks[stage - 1]} 
-        alt={ticker}
-        className="w-full h-full object-contain p-1.5"
-        onError={() => {
-          if (stage < fallbacks.length) {
-            setStage(prev => prev + 1);
-          }
-        }}
-      />
+      <span 
+        className="font-bold text-white"
+        style={{ fontSize: size * 0.5 }}
+      >
+        {ticker[0]}
+      </span>
     </div>
   );
 };
