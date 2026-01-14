@@ -147,66 +147,57 @@ const MarketListRow = ({ market, onClick }: { market: Market; onClick: () => voi
   const isPositive = market.priceChangePercent >= 0;
 
   return (
-    <div 
-      onClick={onClick} 
-      className="flex items-center gap-3 p-4 hover:bg-white/5 cursor-pointer transition-all border-b border-gray-900/50 group"
-    >
-    {/* icon */}
-      <div className="flex items-center gap-3">
-        <MarketIcon symbol={market.symbol} size={40} />
-      </div>
+<div 
+  onClick={onClick} 
+  className="flex items-center gap-3 p-4 hover:bg-white/5 cursor-pointer transition-all border-b border-gray-900/50 group"
+>
+  <div className="flex items-center gap-3">
+    <MarketIcon symbol={market.symbol} size={40} />
+  </div>
 
-      {/* Token Info */}
-      <div className="flex-1 gap-3 min-w-500px">
-        <div className="font-bold text-base w-full">{market.symbol.replace('USDC', '/USDC').replace('USDT', '/USDT')}</div>
-        <div className="text-xs text-gray-500">Perpetual</div>
-      </div>
-
-      <div className="flex w-full justify-around">
-            {/* Price */}
-          <div className="text-right min-w-100px">
-            <div className="font-mono font-semibold">${formatNum(market.lastPrice)}</div>
-            <div className={`text-sm font-mono flex items-center justify-end gap-1 ${
-              isPositive ? 'text-green-400' : 'text-red-400'
-            }`}>
-              {isPositive ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-              {formatPercent(market.priceChangePercent)}
-            </div>
-          </div>
-
-          {/* Volume */}
-          <div className="text-right min-w-80px hidden md:block">
-            <div className="text-xs text-gray-500 mb-1">24h Vol</div>
-            <div className="font-mono text-md">{formatCompact(market.volume24h)}</div>
-          </div>
-
-          {/* Open Interest */}
-          <div className="text-right min-w-80px hidden lg:block">
-            <div className="text-xs text-gray-500 mb-1">Open Interest</div>
-            <div className="font-mono text-md">{formatCompact(market.openInterest)}</div>
-          </div>
-
-          {/* Funding Rate */}
-          <div className="text-right min-w-80px hidden lg:block">
-            <div className="text-xs text-gray-500 mb-1">Funding</div>
-            <div className="font-mono text-md text-yellow-400">
-              {market.fundingRate ? (market.fundingRate * 100).toFixed(4) + '%' : '---'}
-            </div>
-          </div>
-
-          {/* Chart */}
-          <div className="w-20 h-10 hidden xl:block">
-            <Sparkline isPositive={isPositive} />
-          </div>
-
-      </div>
-
-      
-      <ArrowRight className="w-5 h-5 text-gray-500" />
+  <div className="shrink-0 min-w-100px">
+    <div className="font-bold text-base whitespace-nowrap">
+      {market.symbol.replace('USDC', '/USDC').replace('USDT', '/USDT')}
     </div>
+    <div className="text-xs text-gray-500">Perpetual</div>
+  </div>
+
+  <div className="flex w-full justify-around">
+    <div className="text-right min-w-100px">
+      <div className="font-mono font-semibold">${formatNum(market.lastPrice)}</div>
+      <div className={`text-sm font-mono flex items-center justify-end gap-1 ${
+        isPositive ? 'text-green-400' : 'text-red-400'
+      }`}>
+        {isPositive ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+        {formatPercent(market.priceChangePercent)}
+      </div>
+    </div>
+
+    <div className="text-right min-w-80px hidden md:block">
+      <div className="text-xs text-gray-500 mb-1">24h Vol</div>
+      <div className="font-mono text-md">{formatCompact(market.volume24h)}</div>
+    </div>
+
+    <div className="text-right min-w-80px hidden lg:block">
+      <div className="text-xs text-gray-500 mb-1">Open Interest</div>
+      <div className="font-mono text-md">{formatCompact(market.openInterest)}</div>
+    </div>
+
+    <div className="text-right min-w-80px hidden lg:block">
+      <div className="text-xs text-gray-500 mb-1">Funding</div>
+      <div className="font-mono text-md text-yellow-400">
+        {market.fundingRate ? (market.fundingRate * 100).toFixed(4) + '%' : '---'}
+      </div>
+    </div>
+
+    <div className="w-20 h-10 hidden xl:block">
+      <Sparkline isPositive={isPositive} />
+    </div>
+  </div>
+  <ArrowRight className="w-5 h-5 text-gray-500" />
+</div>
   );
 };
-
 
 export default function MarketsPage() {
   const navigate = useNavigate();
@@ -216,7 +207,6 @@ export default function MarketsPage() {
   const [error, setError] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'volume' | 'change' | 'name'>('volume');
 
-  // Platform statS
   const [stats, setStats] = useState({
     tvl: 0,
     volume24h: 0,
@@ -254,7 +244,6 @@ export default function MarketsPage() {
     return () => clearInterval(interval);
   }, []);
 
-  // Filter and sort markets
   const filteredMarkets = markets
     .filter(m => m.symbol.toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => {
@@ -269,7 +258,6 @@ export default function MarketsPage() {
     navigate(`/${slug}`);
   };
 
-  // Loading State
   if (loading && markets.length === 0) {
     return (
       <div className="min-h-screen bg-[#050507] flex items-center justify-center">
@@ -282,7 +270,6 @@ export default function MarketsPage() {
     );
   }
 
-  // Error State
   if (error && markets.length === 0) {
     return (
       <div className="min-h-screen bg-[#050507] flex items-center justify-center p-6">
@@ -306,11 +293,9 @@ export default function MarketsPage() {
     <>
       <div className="min-h-screen bg-[#050507] text-white pb-24 lg:pb-0">
         
-        {/* Hero Section */}
         <div className="bg-linear-to-b from-[#0a0a0f] to-[#050507]">
           <div className="max-w-7xl mx-auto px-6 py-10">
             
-            {/* Title */}
             <div className="mb-8">
               <div className="flex items-center gap-4 mb-3">
                 <h1 className="text-4xl md:text-5xl font-bold bg-linear-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
@@ -322,7 +307,6 @@ export default function MarketsPage() {
               </p>
             </div>
 
-            {/* Stats Cards - Live Data */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
               <div className="bg-gray-900/50 rounded-xl p-6 border border-gray-800">
                 <div className="flex items-center gap-3 mb-2">
@@ -351,10 +335,8 @@ export default function MarketsPage() {
           </div>
         </div>
 
-        {/* Markets Section */}
         <div className="max-w-6xl mx-auto px-6 py-8 border border-gray-800/25 rounded-xl">
           
-          {/* Controls */}
           <div className="flex flex-col md:flex-row gap-4 mb-4">
             <div className="flex-1 relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
@@ -378,7 +360,6 @@ export default function MarketsPage() {
             </select>
           </div>
 
-          {/* Error Banner */}
           {error && markets.length > 0 && (
             <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 mb-6 flex items-center gap-3">
               <AlertCircle className="w-5 h-5 text-yellow-500" />
@@ -386,7 +367,6 @@ export default function MarketsPage() {
             </div>
           )}
 
-          {/* Markets List */}
           {filteredMarkets.length === 0 ? (
             <div className="text-center py-20">
               <div className="text-gray-500 text-lg">No markets found</div>
@@ -403,7 +383,6 @@ export default function MarketsPage() {
             </div>
           )}
 
-          {/* Market Count */}
           <div className="text-center text-gray-500 text-sm mt-6">
             Showing {filteredMarkets.length} of {markets.length} markets • Live data from Extended Exchange
           </div>

@@ -10,7 +10,6 @@ import { suppressWalletVersionErrors } from './utils/suppressWalletErrors';
 console.log('🚀 Vandor starting...');
 console.log('🌍 Network:', import.meta.env.VITE_NETWORK || 'mainnet');
 
-// Suppress wallet version warnings BEFORE React renders
 suppressWalletVersionErrors();
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

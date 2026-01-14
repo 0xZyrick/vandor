@@ -30,10 +30,9 @@ class ExtendedExchangeService {
     this.config = config;
     this.isMainnet = config.network === 'mainnet';
     
-    // Use proxy URL - this routes through your Vercel/Vite proxy
+    // Use proxy URL 
     this.baseUrl = '/api/v1';
     
-    // MAINNET vs TESTNET domain config
     this.domain = this.isMainnet 
       ? {
           name: 'Perpetuals',
@@ -73,7 +72,7 @@ class ExtendedExchangeService {
     endpoint: string,
     body?: any
   ): Promise<T> {
-    // Construct full URL - endpoint should NOT have /v1 prefix
+    // Construct full URL
     const url = `${this.baseUrl}${endpoint}`;
     
     const headers: Record<string, string> = {
@@ -110,7 +109,7 @@ class ExtendedExchangeService {
     }
   }
 
-  // PUBLIC ENDPOINTS (no /v1 prefix - it's in baseUrl)
+  // PUBLIC ENDPOINTS 
 
   async getMarkets() {
     return this.makeRequest('GET', '/info/markets');
@@ -128,7 +127,7 @@ class ExtendedExchangeService {
 
   async getBalance() {
     if (!this.isConnected()) {
-      throw new Error("Wallet not connected");
+      return { available: 0, total: 0, margin: 0, unrealizedPnL: 0 };
     }
 
     try {
@@ -140,7 +139,12 @@ class ExtendedExchangeService {
         margin: parseFloat(data.data?.initialMargin || '0'),
         unrealizedPnL: parseFloat(data.data?.unrealisedPnl || '0'),
       };
-    } catch (error) {
+    } catch (error: any) {
+      // 404 = unfunded account (normal for new accounts)
+      if (error.message?.includes('404')) {
+        return { available: 0, total: 0, margin: 0, unrealizedPnL: 0 };
+      }
+      
       console.error("❌ Failed to get balance:", error);
       return { available: 0, total: 0, margin: 0, unrealizedPnL: 0 };
     }
@@ -216,7 +220,7 @@ class ExtendedExchangeService {
     }
   }
 
-  // ORDER PLACEMENT - PRODUCTION READY
+  // ORDER PLACEMENT 
   async placeOrder(params: {
     symbol: string;
     side: 'long' | 'short';
@@ -236,7 +240,6 @@ class ExtendedExchangeService {
     try {
       console.log("📝 Preparing order:", params);
 
-      // Get current market price if needed
       let orderPrice = params.price;
       if (params.type === 'market' || !orderPrice) {
         try {
@@ -247,10 +250,9 @@ class ExtendedExchangeService {
             throw new Error('Could not get current market price');
           }
           
-          // For market orders, add slippage buffer
           orderPrice = params.side === 'long' 
-            ? currentPrice * 1.0075  // 0.75% above for buys
-            : currentPrice * 0.9925; // 0.75% below for sells
+            ? currentPrice * 1.0075  
+            : currentPrice * 0.9925; 
           
           console.log(`💰 Market price: ${currentPrice}, Order price: ${orderPrice}`);
         } catch {
@@ -258,11 +260,8 @@ class ExtendedExchangeService {
         }
       }
 
-      // Extended taker fee is 0.025% (0.00025)
       const feeRate = '0.00025';
       const externalId = `VANDOR_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-
-      // Prepare order params with ALL required fields
       const orderParams = {
         market: params.symbol,
         side: (params.side === 'long' ? 'BUY' : 'SELL') as 'BUY' | 'SELL',
@@ -278,7 +277,6 @@ class ExtendedExchangeService {
       console.log("✍️ Requesting wallet signature...");
       console.log("📋 Order params:", orderParams);
 
-      // Sign the order (this triggers wallet popup)
       const signedOrder = await signAndFormatOrder(
         this.account,
         orderParams,
@@ -289,7 +287,6 @@ class ExtendedExchangeService {
       console.log("✅ Order signed successfully");
       console.log("📤 Submitting to Extended API...");
 
-      // Prepare API payload
       const orderPayload = {
         id: signedOrder.order.externalId,
         market: signedOrder.order.market,
@@ -310,7 +307,6 @@ class ExtendedExchangeService {
 
       console.log("📨 API Payload:", JSON.stringify(orderPayload, null, 2));
 
-      // Submit to Extended
       const response: any = await this.makeRequest('POST', '/user/order', orderPayload);
 
       console.log("✅ Order submitted successfully!");
@@ -376,7 +372,6 @@ class ExtendedExchangeService {
   }) {
     console.log("🔄 Closing position:", params);
     
-    // Close by placing opposite market order
     return this.placeOrder({
       symbol: params.symbol,
       side: params.side === 'long' ? 'short' : 'long',

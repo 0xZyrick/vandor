@@ -28,9 +28,6 @@ export default function PortfolioPage() {
     closePosition,
     refreshPositions
   } = extendedExchange;
-  
-  // Safe access to getOrderHistory if it exists
-//   const getOrderHistory = extendedExchange.getOrderHistory || (async () => []);
 
   const [activeTab, setActiveTab] = useState<'positions' | 'history'>('positions');
   const [orderHistory, setOrderHistory] = useState<any[]>([]);
@@ -38,7 +35,6 @@ export default function PortfolioPage() {
   const [closingPositionId, setClosingPositionId] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Get wallet type
   const getWalletType = () => {
     if (!connector) return 'Wallet';
     if (connector.id.includes('argent')) return 'Argent X';
@@ -66,7 +62,6 @@ export default function PortfolioPage() {
     }
   };
 
-  // Refresh all data
   const refreshAll = async () => {
     setIsRefreshing(true);
     await Promise.all([
@@ -83,7 +78,6 @@ export default function PortfolioPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isConnected, activeTab]);
 
-  // Close position handler
   const handleClosePosition = async (position: any) => {
     if (!confirm(`Close your ${position.side} position on ${position.symbol}?`)) {
       return;
@@ -128,10 +122,10 @@ export default function PortfolioPage() {
   return (
     <>
       <div className="min-h-screen bg-[#050507] text-white pb-24">
-        {/* Portfolio Header */}
+
         <div className="bg-[#0a0a0f] border-b border-gray-900 p-6">
           <div className="max-w-7xl mx-auto">
-            {/* Wallet Info */}
+
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-full bg-linear-to-tr from-blue-600 to-purple-600 flex items-center justify-center">
@@ -152,9 +146,9 @@ export default function PortfolioPage() {
               </button>
             </div>
 
-            {/* Portfolio Overview Cards */}
+
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              {/* Total Equity */}
+
               <div className="bg-gray-900/50 rounded-xl p-4 border border-gray-800">
                 <div className="flex items-center gap-2 mb-2">
                   <DollarSign className="w-4 h-4 text-gray-400" />
@@ -163,7 +157,7 @@ export default function PortfolioPage() {
                 <p className="text-2xl font-bold font-mono">${totalEquity.toFixed(2)}</p>
               </div>
 
-              {/* Unrealized PnL */}
+
               <div className="bg-gray-900/50 rounded-xl p-4 border border-gray-800">
                 <div className="flex items-center gap-2 mb-2">
                   <Activity className="w-4 h-4 text-gray-400" />
@@ -176,7 +170,6 @@ export default function PortfolioPage() {
                 </p>
               </div>
 
-              {/* USDC Balance */}
               <div className="bg-gray-900/50 rounded-xl p-4 border border-gray-800">
                 <div className="flex items-center gap-2 mb-2">
                   <Wallet className="w-4 h-4 text-gray-400" />
@@ -185,7 +178,6 @@ export default function PortfolioPage() {
                 <p className="text-2xl font-bold font-mono">${usdcBalance.toFixed(2)}</p>
               </div>
 
-              {/* Available Margin */}
               <div className="bg-gray-900/50 rounded-xl p-4 border border-gray-800">
                 <div className="flex items-center gap-2 mb-2">
                   <TrendingUp className="w-4 h-4 text-gray-400" />
